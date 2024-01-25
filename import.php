@@ -10,6 +10,7 @@ use Import\PostType;
 use Import\Taxonomy;
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
+use Import\Event;
 use Import\Importer\ImporterFactory;
 
 defined('ABSPATH') or die;
@@ -172,13 +173,20 @@ function importRestaurants() {
     $config = $_POST['config'] ?? [];
     $config['twocaptcha_key'] = 'f8910daaa8b7288657fb62cfffcd6fa7';
     
-    $failed = [];
+    $progress = [
+        'total' => count($urls),
+        'success' => 0,
+        'fail' => 0,
+        'failed_urls' => [],
+    ];
     foreach ($urls as $url) {
         try {
             $importer = ImporterFactory::create($url, $config);
             $importer->import($url);
+            $progress['success']++;
         } catch (Exception $e) {
-            $failed[] = $url;
+            $progress['fail']++;
+            $progress['failed_urls'][] = $url;
 
             error_log(json_encode([
                 'code' => $e->getCode(),
@@ -187,12 +195,12 @@ function importRestaurants() {
             ]) . PHP_EOL, 3, IMPORT_ROOT . '/logs/error_log');
         }
 
+        Event::send($progress);
+
         sleep(rand(1, 5));
     }
 
-    wp_send_json([
-        'failed' => $failed,
-    ]);
+    wp_die();
 }   
 
 add_action('wp_ajax_import_restaurants', 'importRestaurants');
