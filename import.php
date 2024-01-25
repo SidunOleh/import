@@ -169,6 +169,8 @@ add_action('admin_menu', 'addImportPage');
 function importRestaurants() {
     set_time_limit(0);
 
+    header( 'Connection: keep-alive' );
+
     $urls = preg_split('/\r\n|\n|\r/', trim($_POST['urls'] ?? ''));
     $config = $_POST['config'] ?? [];
     $config['twocaptcha_key'] = 'f8910daaa8b7288657fb62cfffcd6fa7';

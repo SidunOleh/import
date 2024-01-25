@@ -68,12 +68,13 @@
     const btn = document.querySelector('#import')
     btn.addEventListener('click', async function (e) {
         container.classList.add('loading')
+        failedList.innerHTML = ''
 
         const imagesCount = document.querySelector('#images_count').value
         const reviewsCount = document.querySelector('#reviews_count').value
         const urls = document.querySelector('#urls').value
 
-        var data = new FormData()
+        const data = new FormData()
         data.append('config[images_count]', imagesCount)
         data.append('config[reviews_count]', reviewsCount)
         data.append('urls', urls)
@@ -99,17 +100,16 @@
             progress = JSON.parse(value)
 
             progressEl.classList.add('show')
-            total.innerHTML = (progress.success + progress.fail) + ' / ' + progress.total
+            total.innerHTML = `${progress.success + progress.fail} / ${progress.total}`
             success.innerHTML = progress.success
             fail.innerHTML = progress.fail
         }
 
         if (progress.failed_urls.length) {
-            failedList.innerHTML = '<h2>Failed import</h2>'
+            failedList.innerHTML = '<h2>Failed imports</h2>'
             failedList.innerHTML += progress.failed_urls.join('<br>')
-            alert('Try again to import data which were not imported.')
+            alert('Some imports failed. Try again.')
         } else {
-            failedList.innerHTML = ''
             alert('Successfully imported.')
         }
 
