@@ -1,0 +1,11 @@
+{
+    "require": {
+        "guzzlehttp/guzzle": "^7.8",
+        "2captcha/2captcha": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Import\\": "src/"
+        }
+    }
+}
