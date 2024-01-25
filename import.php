@@ -169,7 +169,7 @@ add_action('admin_menu', 'addImportPage');
 function importRestaurants() {
     set_time_limit(0);
 
-    header( 'Connection: keep-alive' );
+    header('Connection: keep-alive');
 
     $urls = preg_split('/\r\n|\n|\r/', trim($_POST['urls'] ?? ''));
     $config = $_POST['config'] ?? [];
