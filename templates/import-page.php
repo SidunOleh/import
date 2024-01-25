@@ -78,7 +78,7 @@
         data.append('config[images_count]', imagesCount)
         data.append('config[reviews_count]', reviewsCount)
         data.append('urls', urls)
-        data.append('action', 'import_restaurants')
+        data.append('action', 'impor_items')
 
         const response = await fetch('/wp-admin/admin-ajax.php', {
             method: 'POST',

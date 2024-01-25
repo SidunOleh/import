@@ -164,9 +164,9 @@ function addImportPage() {
 add_action('admin_menu', 'addImportPage');
     
 /**
- * Import restaurants
+ * Import items
  */
-function importRestaurants() {
+function importItems() {
     set_time_limit(0);
 
     header('Connection: keep-alive');
@@ -206,4 +206,4 @@ function importRestaurants() {
     wp_die();
 }   
 
-add_action('wp_ajax_import_restaurants', 'importRestaurants');
+add_action('wp_ajax_import_restaurants', 'importItems');
