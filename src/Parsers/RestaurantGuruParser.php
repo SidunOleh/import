@@ -39,6 +39,7 @@ class RestaurantGuruParser extends BaseParser
         $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
         $info['name'] = $data['name'] ?? '';
         $info['description'] = $data['review']['description'] ?? '';
+        $info['thumbnail'] = $data['image'] ?? '';
         $info['address']['addressCountry'] = $data['address']['addressCountry'] ?? '';
         $info['address']['addressLocality'] = $data['address']['addressLocality'] ?? '';
         $info['address']['addressRegion'] = $data['address']['addressRegion'] ?? '';
