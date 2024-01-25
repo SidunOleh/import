@@ -51,10 +51,17 @@
 
 <div class="progress">
     <div class="progress__body">
+
         <span id="total">0</span>
-        <br><br>
+        <br>
+        <br>
         <?php _e('Success: ') ?> <span id="success">0</span>,
         <?php _e('Fail: ') ?> <span id="fail">0</span>
+        <br>
+        <br>
+        <a id="stop" class="stop" href="<?php echo admin_url('admin-ajax.php') ?>?action=stop_import">
+            <?php _e( 'Stop import' ) ?>
+        </a>
     </div>
 </div>
 
@@ -64,57 +71,85 @@
     const total = progressEl.querySelector('#total')
     const success = progressEl.querySelector('#success')
     const fail = progressEl.querySelector('#fail')
-    const failedList = document.querySelector('.failed')
-    const btn = document.querySelector('#import')
-    btn.addEventListener('click', async function (e) {
+    const failedUrls = document.querySelector('.failed')
+    const importBtn = document.querySelector('#import')
+    importBtn.addEventListener('click', async function (e) {
         container.classList.add('loading')
-        failedList.innerHTML = ''
+        failedUrls.innerHTML = ''
 
         const imagesCount = document.querySelector('#images_count').value
         const reviewsCount = document.querySelector('#reviews_count').value
         const urls = document.querySelector('#urls').value
 
-        const data = new FormData()
-        data.append('config[images_count]', imagesCount)
-        data.append('config[reviews_count]', reviewsCount)
-        data.append('urls', urls)
-        data.append('action', 'import_items')
-
-        const response = await fetch('/wp-admin/admin-ajax.php', {
-            method: 'POST',
-            body: data
+        const params = new URLSearchParams({
+            'action': 'import_items',
+            'config[images_count]': imagesCount,
+            'config[reviews_count]': reviewsCount,
+            'urls': urls,
         })
 
-        const reader = response.body
-            .pipeThrough(new TextDecoderStream())
-            .getReader()
-        
-        let progress = []
-        while (true) {
-            const {value, done} = await reader.read()
+        const source = new EventSource(`/wp-admin/admin-ajax.php?${params.toString()}`)
 
-            if (done) {
-                break
-            }
-
-            progress = JSON.parse(value)
+        source.addEventListener('progress', function (e) {
+            const progress = JSON.parse(e.data)
 
             progressEl.classList.add('show')
             total.innerHTML = `${progress.success + progress.fail} / ${progress.total}`
             success.innerHTML = progress.success
             fail.innerHTML = progress.fail
-        }
+        })
 
-        if (progress.failed_urls.length) {
-            failedList.innerHTML = '<h2>Failed imports</h2>'
-            failedList.innerHTML += progress.failed_urls.join('<br>')
-            alert('Some imports failed. Try again.')
-        } else {
-            alert('Successfully imported.')
-        }
+        source.addEventListener('end', function (e) {
+            const progress = JSON.parse(e.data)
 
-        container.classList.remove('loading')
-        progressEl.classList.remove('show')
+            if (progress.failed_urls.length) {
+                failedUrls.innerHTML = '<h2>Failed imports</h2>'
+                failedUrls.innerHTML += progress.failed_urls.join('<br>')
+                alert('Some imports failed. Try again.')
+            } else {
+                alert('Successfully imported.')
+            }
+
+            container.classList.remove('loading')
+            progressEl.classList.remove('show')
+            source.close()
+        })
+
+        source.addEventListener('stop', function(e) {
+            container.classList.remove('loading')
+            progressEl.classList.remove('show')
+            source.close()
+        })
+
+        source.addEventListener('error', function(e) {
+            alert('Something goes wrong. Try again.')
+            container.classList.remove('loading')
+            progressEl.classList.remove('show')
+            source.close()
+        })
+    })
+
+    const stopLink = document.querySelector('#stop')
+    stopLink.addEventListener('click', function (e) {
+        e.preventDefault()
+
+        const url = this.getAttribute('href')
+
+        try {
+            fetch(url).then(async res => {
+                const data = await res.json()
+
+                if (data.success) {
+                    alert('Import was stopped.')
+                    container.classList.remove('loading')
+                    progressEl.classList.remove('show')
+                } else {
+                    alert('Can not stop import.')
+                }
+            })
+        } catch {
+            alert('Can not stop import.')
+        }
     })
 </script>
 
@@ -179,5 +214,15 @@
         text-align: center;
         font-size: 20px;
         font-weight: 700;
+    }
+
+    .stop {
+        color: red !important;
+    }
+
+    .stop:hover,
+    .stop:visited,
+    .stop:active {
+        color: red !important;
     }
 </style>

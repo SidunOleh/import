@@ -167,14 +167,17 @@ add_action('admin_menu', 'addImportPage');
  * Import items
  */
 function importItems() {
+    declare(ticks = 1);
+    
+    header('Connection: keep-alive');
+    header('Content-Type: text/event-stream');
+
     set_time_limit(0);
 
-    header('Connection: keep-alive');
+    file_put_contents(IMPORT_ROOT . '/pid', getmypid());
 
-    file_put_contents('pid');
-
-    $urls = preg_split('/\r\n|\n|\r/', trim($_POST['urls'] ?? ''));
-    $config = $_POST['config'] ?? [];
+    $urls = preg_split('/\r\n|\n|\r/', trim($_GET['urls'] ?? ''));
+    $config = $_GET['config'] ?? [];
     $config['twocaptcha_key'] = 'f8910daaa8b7288657fb62cfffcd6fa7';
     
     $progress = [
@@ -183,6 +186,14 @@ function importItems() {
         'fail' => 0,
         'failed_urls' => [],
     ];
+
+    pcntl_signal(1, function () use(&$progress) {
+        Event::send($progress, 'stop');
+        wp_die();
+    });
+    
+    Event::send($progress, 'progress');    
+
     foreach ($urls as $url) {
         try {
             $importer = ImporterFactory::create($url, $config);
@@ -200,12 +211,29 @@ function importItems() {
             ]) . PHP_EOL, 3, IMPORT_ROOT . '/logs/error_log');
         }
 
-        Event::send($progress);
+        Event::send($progress, 'progress');
 
         sleep(rand(1, 5));
     }
+
+    Event::send($progress, 'end');
 
     wp_die();
 }   
 
 add_action('wp_ajax_import_items', 'importItems');
+
+/**
+ * Stop import 
+ */
+function stopImport() {
+    $pid = file_get_contents(IMPORT_ROOT . '/pid');
+
+    $result = posix_kill($pid, 1);
+
+    wp_send_json([
+        'success' => $result,
+    ]);
+}
+
+add_action('wp_ajax_stop_import', 'stopImport');
