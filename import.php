@@ -171,6 +171,8 @@ function importItems() {
 
     header('Connection: keep-alive');
 
+    file_put_contents('pid');
+
     $urls = preg_split('/\r\n|\n|\r/', trim($_POST['urls'] ?? ''));
     $config = $_POST['config'] ?? [];
     $config['twocaptcha_key'] = 'f8910daaa8b7288657fb62cfffcd6fa7';
@@ -206,4 +208,4 @@ function importItems() {
     wp_die();
 }   
 
-add_action('wp_ajax_import_restaurants', 'importItems');
+add_action('wp_ajax_import_items', 'importItems');
