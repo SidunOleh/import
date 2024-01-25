@@ -185,6 +185,7 @@ function importRestaurants() {
         try {
             $importer = ImporterFactory::create($url, $config);
             $importer->import($url);
+            
             $progress['success']++;
         } catch (Exception $e) {
             $progress['fail']++;
