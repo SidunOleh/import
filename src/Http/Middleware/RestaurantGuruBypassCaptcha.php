@@ -39,7 +39,7 @@ class RestaurantGuruBypassCaptcha
                 $response->getBody()->rewind();
                 if ($this->hasCaptcha($xpath)) {
                     if ($this->bypassCaptcha($xpath, $request->getUri())) {
-                        $response = $this->httpClient->request(
+                        $response = $this->httpClient->makeRequest(
                             $request->getMethod(),
                             $request->getUri()
                         );
@@ -73,7 +73,7 @@ class RestaurantGuruBypassCaptcha
             'url' => $url,
         ]);
     
-        $response = $this->httpClient->request('POST', 'https://ru.restaurantguru.com/ajax/ab_check', [
+        $response = $this->httpClient->makeRequest('POST', 'https://ru.restaurantguru.com/ajax/ab_check', [
             'form_params' => [
                 'ab_g_response' => $captchaSolution->code, 
                 'tr' => $tr,
