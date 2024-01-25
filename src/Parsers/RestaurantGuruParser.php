@@ -23,7 +23,7 @@ class RestaurantGuruParser extends BaseParser
         
         $info = [];
         $info['source'] = $url;
-        $info = array_merge($info, $this->info($xpath));
+        $info = array_merge($info, $this->info($xpath, $url));
         $info['features'] = $this->features($xpath);
         $info['social_media'] = $this->socialMedia($xpath);
         $info['photos'] = $this->photos($xpath);
@@ -32,11 +32,16 @@ class RestaurantGuruParser extends BaseParser
         return $info;
     }
 
-    private function info(DOMXPath $xpath): array
+    private function info(DOMXPath $xpath, string $url): array
     {
         $info = [];
 
         $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        if (! $data) {
+            throw new Exception("Can not parse {$url}");
+        }
+  
         $info['name'] = $data['name'] ?? '';
         $info['description'] = $data['review']['description'] ?? '';
         $info['thumbnail'] = $data['image'] ?? '';
