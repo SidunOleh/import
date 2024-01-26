@@ -174,12 +174,6 @@ function importItems() {
 
     set_time_limit(0);
 
-    $uniqid = uniqid();
-
-    session_start();
-    $_SESSION["{$uniqid}_import_pid"] = getmypid();
-    session_write_close();
-
     $urls = preg_split('/\r\n|\n|\r/', trim($_GET['urls'] ?? ''));
     $config = $_GET['config'] ?? [];
     $config['twocaptcha_key'] = 'f8910daaa8b7288657fb62cfffcd6fa7';
@@ -189,7 +183,7 @@ function importItems() {
         'success' => 0,
         'fail' => 0,
         'failed_urls' => [],
-        'uniqid' => $uniqid,
+        'pid' => getmypid(),
     ];
 
     pcntl_signal(1, function () use(&$progress) {
@@ -232,9 +226,7 @@ add_action('wp_ajax_import_items', 'importItems');
  * Stop import 
  */
 function stopImport() {
-    session_start();
-    $pid = $_SESSION["{$_GET['uniqid']}_import_pid"];
-    session_write_close();
+    $pid = $_GET['pid'] ?? 0;
 
     $result = posix_kill($pid, 1);
 
