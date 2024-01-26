@@ -238,6 +238,8 @@ function stopImport() {
     wp_send_json([
         'success' => $result,
     ]);
+
+    wp_die();
 }
 
 add_action('wp_ajax_stop_import', 'stopImport');
