@@ -168,13 +168,15 @@ add_action('admin_menu', 'addImportPage');
  */
 function importItems() {
     declare(ticks = 1);
-    
+
     header('Connection: keep-alive');
     header('Content-Type: text/event-stream');
 
     set_time_limit(0);
 
-    file_put_contents(IMPORT_ROOT . '/pid', getmypid());
+    session_start();
+    $_SESSION['import_pid'] = getmypid();
+    session_write_close();
 
     $urls = preg_split('/\r\n|\n|\r/', trim($_GET['urls'] ?? ''));
     $config = $_GET['config'] ?? [];
@@ -227,7 +229,9 @@ add_action('wp_ajax_import_items', 'importItems');
  * Stop import 
  */
 function stopImport() {
-    $pid = file_get_contents(IMPORT_ROOT . '/pid');
+    session_start();
+    $pid = $_SESSION['import_pid'];
+    session_write_close();
 
     $result = posix_kill($pid, 1);
 
