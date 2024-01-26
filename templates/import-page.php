@@ -116,6 +116,7 @@
         })
 
         source.addEventListener('stop', function(e) {
+            alert('Import was stopped.')
             container.classList.remove('loading')
             progressEl.classList.remove('show')
             source.close()
@@ -139,9 +140,7 @@
             fetch(url).then(async res => {
                 const data = await res.json()
 
-                if (data.success) {
-                    alert('Import was stopped.')
-                } else {
+                if (! data.success) {
                     alert('Can not stop import.')
                 }
             })
