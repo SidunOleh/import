@@ -218,6 +218,7 @@
 
     .stop {
         color: red !important;
+        font-size: 18px;
     }
 
     .stop:hover,
