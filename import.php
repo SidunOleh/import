@@ -174,8 +174,10 @@ function importItems() {
 
     set_time_limit(0);
 
+    $uniqid = uniqid();
+
     session_start();
-    $_SESSION['import_pid'] = getmypid();
+    $_SESSION["{$uniqid}_import_pid"] = getmypid();
     session_write_close();
 
     $urls = preg_split('/\r\n|\n|\r/', trim($_GET['urls'] ?? ''));
@@ -187,6 +189,7 @@ function importItems() {
         'success' => 0,
         'fail' => 0,
         'failed_urls' => [],
+        'uniqid' => $uniqid,
     ];
 
     pcntl_signal(1, function () use(&$progress) {
@@ -230,7 +233,7 @@ add_action('wp_ajax_import_items', 'importItems');
  */
 function stopImport() {
     session_start();
-    $pid = $_SESSION['import_pid'];
+    $pid = $_SESSION["{$_GET['uniqid']}_import_pid"];
     session_write_close();
 
     $result = posix_kill($pid, 1);

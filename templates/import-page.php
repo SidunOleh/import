@@ -73,6 +73,7 @@
     const fail = progressEl.querySelector('#fail')
     const failedUrls = document.querySelector('.failed')
     const importBtn = document.querySelector('#import')
+    let uniqid = null
     importBtn.addEventListener('click', async function (e) {
         container.classList.add('loading')
         failedUrls.innerHTML = ''
@@ -97,6 +98,7 @@
             total.innerHTML = `${progress.success + progress.fail} / ${progress.total}`
             success.innerHTML = progress.success
             fail.innerHTML = progress.fail
+            uniqid = progress.uniqid
         })
 
         source.addEventListener('end', function (e) {
@@ -137,7 +139,7 @@
         const url = this.getAttribute('href')
 
         try {
-            fetch(url).then(async res => {
+            fetch(`${url}&uniqid=${uniqid}`).then(async res => {
                 const data = await res.json()
 
                 if (! data.success) {
