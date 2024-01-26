@@ -141,8 +141,6 @@
 
                 if (data.success) {
                     alert('Import was stopped.')
-                    container.classList.remove('loading')
-                    progressEl.classList.remove('show')
                 } else {
                     alert('Can not stop import.')
                 }
