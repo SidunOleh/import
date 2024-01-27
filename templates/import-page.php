@@ -59,7 +59,7 @@
         <?php _e('Fail: ') ?> <span id="fail">0</span>
         <br>
         <br>
-        <a id="stop" class="stop" href="<?php echo admin_url('admin-ajax.php') ?>?action=stop_import">
+        <a id="stop" class="stop">
             <?php _e( 'Stop import' ) ?>
         </a>
     </div>
@@ -136,23 +136,30 @@
     stopLink.addEventListener('click', function (e) {
         e.preventDefault()
 
-        const url = this.getAttribute('href')
+        stopLink.classList.add('loading')
 
         try {
-            fetch(`${url}&pid=${pid}`).then(async res => {
+            fetch(`/wp-admin/admin-ajax.php?action=stop_import&pid=${pid}`).then(async res => {
                 const data = await res.json()
 
                 if (! data.success) {
                     alert('Can not stop import.')
                 }
+
+                stopLink.classList.remove('loading')
             })
         } catch {
             alert('Can not stop import.')
+            stopLink.classList.remove('loading')
         }
     })
 </script>
 
 <style>
+    #wpbody {
+        min-height: 100vh;
+    }
+    
     .loading {
         position: relative;
     }
@@ -216,13 +223,7 @@
     }
 
     .stop {
-        color: red !important;
         font-size: 18px;
-    }
-
-    .stop:hover,
-    .stop:visited,
-    .stop:active {
-        color: red !important;
+        cursor: pointer;
     }
 </style>

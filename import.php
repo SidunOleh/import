@@ -193,7 +193,7 @@ function importItems() {
     
     Event::send($progress, 'progress');    
 
-    foreach ($urls as $url) {
+    foreach ($urls as $i => $url) {
         try {
             $importer = ImporterFactory::create($url, $config);
             $importer->import($url);

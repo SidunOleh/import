@@ -21,6 +21,10 @@ class RestaurantGuruSaver extends BaseSaver
             'post_status' => 'publish',
             'post_author' => get_current_user_id(),
         ]);
+
+        if (! $postId) {
+            throw new Exception("Can not create post for {$data['source']}");
+        }
     
         carbon_set_post_meta($postId, 'address_country', $data['address']['addressCountry']);
         carbon_set_post_meta($postId, 'address_locality', $data['address']['addressLocality']);
@@ -110,15 +114,22 @@ class RestaurantGuruSaver extends BaseSaver
     private function insertLocation(array $location): array 
     {
         $locationIds = [];
+
+        $region = $location['addressRegion'] ?: $location['addressLocality'];
+        $city = $location['addressLocality'];
+
+        if (! $region or ! $city) {
+            return $locationIds;
+        }
     
-        if (! $stateTerm = get_term_by('name', $location['addressRegion'], 'restaurant_location', ARRAY_A)) {
-            $stateTerm = wp_insert_term($location['addressRegion'], 'restaurant_location');
+        if (! $regionTerm = get_term_by('name', $region, 'restaurant_location', ARRAY_A)) {
+            $regionTerm = wp_insert_term($region, 'restaurant_location');
         } 
-        $locationIds[] = $stateTerm['term_id'];
+        $locationIds[] = $regionTerm['term_id'];
     
-        if (! $cityTerm = get_term_by('name', $location['addressLocality'], 'restaurant_location', ARRAY_A)) {
-            $cityTerm = wp_insert_term($location['addressLocality'], 'restaurant_location', [
-                'parent' => $stateTerm['term_id'],
+        if (! $cityTerm = get_term_by('name', $city, 'restaurant_location', ARRAY_A)) {
+            $cityTerm = wp_insert_term($city, 'restaurant_location', [
+                'parent' => $regionTerm['term_id'],
             ]);
         } 
         $locationIds[] = $cityTerm['term_id'];
@@ -141,6 +152,10 @@ class RestaurantGuruSaver extends BaseSaver
                 'comment_content' => $review['text'],
                 'comment_post_ID' => $postId,
             ]);
+
+            if (! $reviewId) {
+                continue;
+            }
     
             carbon_set_comment_meta($reviewId, 'stars', $review['stars']);
             carbon_set_comment_meta($reviewId, 'author_img_url', $review['author_img']);
@@ -156,12 +171,11 @@ class RestaurantGuruSaver extends BaseSaver
         $photoIds = [];
 
         $requests = function (array $photos) use(&$photoIds) {
-            foreach ($photos as $photo) {
+            foreach ($photos as $i => $photo) {
                 $src = isset($photo['is_video']) ? $photo['srcVideo'] : $photo['src'];
                 $name = md5($src) . '.' . end(explode('.', $src));
-                $path = wp_upload_dir()['path'] . '/' . $name;
                 if (! $attachmentId = $this->attachmentExists($name)) {
-                    yield $path => new Request('GET', $src);
+                    yield $i => new Request('GET', $src);
                 } else {
                     $photoIds[] = $attachmentId;
                 }
@@ -170,23 +184,33 @@ class RestaurantGuruSaver extends BaseSaver
 
         $pool = new Pool($this->httpClient, $requests($photos), [
             'concurrency' => 100,
-            'fulfilled' => function (Response $response, $path) use(&$photoIds) {
+            'fulfilled' => function (Response $response, $i) use($photos, &$photoIds) {
+                $photo = $photos[$i];
+                $src = isset($photo['is_video']) ? $photo['srcVideo'] : $photo['src'];
+                $name = md5($src) . '.' . end(explode('.', $src));
+                $path = wp_upload_dir()['path'] . '/' . $name;
+
                 $file = fopen($path, 'w');
                 fwrite($file, $response->getBody()->getContents());
                 fclose($file);
 
                 $attachment = [
                     'post_mime_type' => $response->getHeaderLine('Content-Type'),
-                    'post_title' => basename($path),
-                    'post_content' => '',
+                    'post_title' => $photo['title'] ?? '',
+                    'post_content' => $photo['description'] ?? '',
                 ];
                 $attachmentId = wp_insert_attachment($attachment, $path);
-    
-                wp_update_attachment_metadata($attachmentId, wp_generate_attachment_metadata($attachmentId, $path));
+                
+                $attachmentMeta = wp_generate_attachment_metadata($attachmentId, $path);
+                wp_update_attachment_metadata($attachmentId, $attachmentMeta);
+
+                if (isset($photo['alt'])) {
+                    update_post_meta($attachmentId, '_wp_attachment_image_alt', $photo['alt']);
+                }
 
                 $photoIds[] = $attachmentId;
             },
-            'rejected' => function (Exception $e, $path) {
+            'rejected' => function (Exception $e, $i) {
                 error_log(json_encode([
                     'code' => $e->getCode(),
                     'message' => $e->getMessage(),
