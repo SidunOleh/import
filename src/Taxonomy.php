@@ -25,35 +25,35 @@ class Taxonomy
         $this->hierarchical = false;        
     }
 
-    public function name( string $name ): self
+    public function name(string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    public function postTypes( array $postTypes ): self
+    public function postTypes(array $postTypes): self
     {
         $this->postTypes = $postTypes;
 
         return $this;
     }
 
-    public function label( string $label ): self
+    public function label(string $label): self
     {
         $this->label = $label;
 
         return $this;
     }
 
-    public function labelPlular( string $labelPlular ): self
+    public function labelPlular(string $labelPlular): self
     {
         $this->labelPlular = $labelPlular;
 
         return $this;
     }
 
-    public function hierarchical( bool $hierarchical ): self
+    public function hierarchical(bool $hierarchical): self
     {
         $this->hierarchical = $hierarchical;
 
@@ -63,7 +63,7 @@ class Taxonomy
     public function register(): void
     {
         add_action('init', function () {
-            register_taxonomy( $this->name, $this->postTypes, [
+            register_taxonomy($this->name, $this->postTypes, [
                 'label'  => $this->label,
                 'labels' => [
                     'name'              => $this->labelPlular,
@@ -81,7 +81,7 @@ class Taxonomy
                     'back_to_items'     => __('← Back to ') . $this->labelPlular,
                 ],
                 'hierarchical'          => $this->hierarchical,
-            ] );
+            ]);
         });
     }
 }
