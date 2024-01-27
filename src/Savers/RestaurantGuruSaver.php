@@ -210,7 +210,7 @@ class RestaurantGuruSaver extends BaseSaver
 
                 $photoIds[] = $attachmentId;
             },
-            'rejected' => function (Exception $e, $i) {
+            'rejected' => function (Exception $e) {
                 error_log(json_encode([
                     'code' => $e->getCode(),
                     'message' => $e->getMessage(),
