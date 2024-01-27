@@ -193,6 +193,7 @@ function importItems() {
             error_log(json_encode([
                 'code' => $e->getCode(),
                 'message' => $e->getMessage(),
+                'url' => $url,
                 'time' => date('Y-m-d H:i:s'),
             ]) . PHP_EOL, 3, IMPORT_ROOT . '/logs/error_log');
         }

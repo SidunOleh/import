@@ -118,8 +118,8 @@ class RestaurantGuruParser extends BaseParser
 
         $requests = function (int $reviewsCount) use($url) {
             $pagesCount = ceil($reviewsCount / 30);
-            for ($i=1; $i <= $pagesCount; $i++) { 
-                yield new Request('GET', "{$url}/reviews/{$i}", [
+            for ($page=1; $page <= $pagesCount; $page++) { 
+                yield $page => new Request('GET', "{$url}/reviews/{$page}", [
                     'X-Requested-With' => 'XMLHttpRequest',
                 ]);
             }
@@ -155,10 +155,11 @@ class RestaurantGuruParser extends BaseParser
                     $reviews[] = $review;
                 }
             },
-            'rejected' => function (Exception $e) {
+            'rejected' => function (Exception $e, $page) use($url) {
                 error_log(json_encode([
                     'code' => $e->getCode(),
                     'message' => $e->getMessage(),
+                    'url' => "{$url}/reviews/{$page}",
                     'time' => date('Y-m-d H:i:s'),
                 ]) . PHP_EOL, 3, IMPORT_ROOT . '/logs/error_log');
             },
