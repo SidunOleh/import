@@ -10,6 +10,7 @@ use Import\PostType;
 use Import\Taxonomy;
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
+use Import\Event;
 use Import\Importer\ImporterFactory;
 
 defined('ABSPATH') or die;
