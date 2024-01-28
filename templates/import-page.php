@@ -72,6 +72,8 @@
                 method: 'POST',
                 body: data,
             }).then(async res => {
+                container.classList.remove('loading')
+                
                 const progress = await res.json()
 
                 if (progress.failed_urls.length) {
@@ -81,8 +83,6 @@
                 } else {
                     alert('Successfully imported.')
                 }
-
-                container.classList.remove('loading')
             })
         } catch {
             alert('Something goes wrong. Try again.')
