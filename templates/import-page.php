@@ -49,47 +49,104 @@
 
 </div>
 
+<div class="progress">
+    <div class="progress__body">
+        <span id="total">0 / 0</span>
+        <br><br>
+        <?php _e('Success: ') ?> <span id="success">0</span>,
+        <?php _e('Fail: ') ?> <span id="fail">0</span>
+    </div>
+</div>
+
 <script>
     const container = document.querySelector('#wpbody')
-    const failedUrls = document.querySelector('.failed')
+    const failedImportsList = document.querySelector('.failed')
     const importBtn = document.querySelector('#import')
+    const progressBar =  document.querySelector('.progress')
     importBtn.addEventListener('click', async function (e) {
+        failedImportsList.innerHTML = ''
         container.classList.add('loading')
-        failedUrls.innerHTML = ''
+        progressBar.classList.add('show')
 
-        const imagesCount = document.querySelector('#images_count').value
-        const reviewsCount = document.querySelector('#reviews_count').value
+        const config = {}
+        config.images_count = document.querySelector('#images_count').value
+        config.reviews_count = document.querySelector('#reviews_count').value
+
         const urls = document.querySelector('#urls').value.split(/\r?\n/)
+        const urlsChunks = chunk(urls, 10)
 
-        const data = new FormData();
-        data.append('action', 'import_items')
-        data.append('config[images_count]', imagesCount)
-        data.append('config[reviews_count]', reviewsCount)
-        urls.forEach(url => data.append('urls[]', url))
-
-        try {
-            fetch('/wp-admin/admin-ajax.php', {
-                method: 'POST',
-                body: data,
-            }).then(async res => {
-                container.classList.remove('loading')
-                
-                const progress = await res.json()
-
-                if (progress.failed_urls.length) {
-                    failedUrls.innerHTML = '<h2>Failed imports</h2>'
-                    failedUrls.innerHTML += progress.failed_urls.join('<br>')
-                    alert('Some imports failed. Try again.')
-                } else {
-                    alert('Successfully imported.')
-                }
-            })
-        } catch {
-            alert('Something goes wrong. Try again.')
-            
-            container.classList.remove('loading')
+        const progress = {
+            total: urls.length,
+            success: 0,
+            fail: 0,
+            failed_imports: [],
         }
+        let importResponse = null
+        for (let i = 0; i < urlsChunks.length; i++) { 
+            try {
+                importResponse = await importItems(urlsChunks[i], config)
+                progress.success += importResponse.success
+                progress.fail += importResponse.fail
+                progress.failed_imports = progress.failed_imports.concat(importResponse.failed_imports)
+            } catch {
+                progress.fail += urlsChunks[i].length
+                progress.failed_imports = progress.failed_imports.concat(urlsChunks[i])
+            }
+
+            progressBar.querySelector('#total').innerHTML = `${progress.success + progress.fail} / ${progress.total}`
+            progressBar.querySelector('#success').innerHTML = progress.success
+            progressBar.querySelector('#fail').innerHTML = progress.fail
+        }
+
+        if (progress.failed_imports.length) {
+            failedImportsList.innerHTML = '<h2>Failed imports</h2>'
+            failedImportsList.innerHTML += progress.failed_imports.join('<br>')
+            alert('Some imports failed. Try it again.')
+        } else {
+            alert('Successfully imported.')
+        }
+
+        progressBar.classList.remove('show')
+        container.classList.remove('loading')
     })
+
+    async function importItems(urls, config) {
+        const data = new FormData()
+        data.append('action', 'import_items')
+
+        urls.forEach(url => data.append('urls[]', url))
+        
+        for (let param in config) {
+            data.append(`config[${param}]`, config[param])
+        }
+
+        const response = await fetch('/wp-admin/admin-ajax.php',{
+            method: 'POST',
+            body: data,
+        })
+
+        return await response.json()
+    }
+
+    function chunk(arr, length) {
+        const chunks = []
+
+        let chunk = []
+        arr.forEach(el => {
+            if (chunk.length == length) {
+                chunks.push(chunk)
+                chunk = []
+            }
+
+            chunk.push(el)
+        })
+
+        if (chunk.length) {
+            chunks.push(chunk)
+        }
+
+        return chunks
+    }
 </script>
 
 <style>
@@ -134,5 +191,28 @@
         100% {
             background-position: 0 0;
         }
+    }
+
+    .progress {
+        position: absolute;
+        z-index: 1000;
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        display: none;
+    }
+
+    .progress.show {
+        display: flex;
+    }
+
+    .progress__body {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
     }
 </style>

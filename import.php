@@ -168,7 +168,7 @@ add_action('admin_menu', 'addImportPage');
 function importItems() {
     set_time_limit(0);
 
-    $urls = preg_split('/\r\n|\n|\r/', trim($_POST['urls'] ?? ''));
+    $urls = $_POST['urls'] ?? [];
     $config = $_POST['config'] ?? [];
     $config['twocaptcha_key'] = 'f8910daaa8b7288657fb62cfffcd6fa7';
     
@@ -176,9 +176,8 @@ function importItems() {
         'total' => count($urls),
         'success' => 0,
         'fail' => 0,
-        'failed_urls' => [],
+        'failed_imports' => [],
     ]; 
-
     foreach ($urls as $url) {
         try {
             $importer = ImporterFactory::create($url, $config);
@@ -187,7 +186,7 @@ function importItems() {
             $progress['success']++;
         } catch (Exception $e) {
             $progress['fail']++;
-            $progress['failed_urls'][] = $url;
+            $progress['failed_imports'][] = $url;
 
             error_log(json_encode([
                 'code' => $e->getCode(),
