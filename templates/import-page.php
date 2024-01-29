@@ -59,13 +59,13 @@
 
         const imagesCount = document.querySelector('#images_count').value
         const reviewsCount = document.querySelector('#reviews_count').value
-        const urls = document.querySelector('#urls').value
+        const urls = document.querySelector('#urls').value.split(/\r?\n/)
 
         const data = new FormData();
         data.append('action', 'import_items')
         data.append('config[images_count]', imagesCount)
         data.append('config[reviews_count]', reviewsCount)
-        data.append('urls', urls)
+        urls.forEach(url => data.append('urls[]', url))
 
         try {
             fetch('/wp-admin/admin-ajax.php', {
