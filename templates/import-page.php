@@ -66,14 +66,13 @@
     importBtn.addEventListener('click', async function (e) {
         failedImportsList.innerHTML = ''
         container.classList.add('loading')
-        progressBar.classList.add('show')
 
         const config = {}
         config.images_count = document.querySelector('#images_count').value
         config.reviews_count = document.querySelector('#reviews_count').value
 
         const urls = document.querySelector('#urls').value.split(/\r?\n/)
-        const urlsChunks = chunk(urls, 10)
+        const urlsChunks = chunk(urls, 2)
 
         const progress = {
             total: urls.length,
@@ -81,6 +80,8 @@
             fail: 0,
             failed_imports: [],
         }
+        showProgress(progress)
+        
         let importResponse = null
         for (let i = 0; i < urlsChunks.length; i++) { 
             try {
@@ -93,9 +94,7 @@
                 progress.failed_imports = progress.failed_imports.concat(urlsChunks[i])
             }
 
-            progressBar.querySelector('#total').innerHTML = `${progress.success + progress.fail} / ${progress.total}`
-            progressBar.querySelector('#success').innerHTML = progress.success
-            progressBar.querySelector('#fail').innerHTML = progress.fail
+            showProgress(progress)
         }
 
         if (progress.failed_imports.length) {
@@ -146,6 +145,15 @@
         }
 
         return chunks
+    }
+
+    function showProgress(progress) {
+        const progressBar =  document.querySelector('.progress')
+        progressBar.classList.add('show')
+        progressBar.querySelector('#total').innerHTML = 
+            `${progress.success + progress.fail} / ${progress.total}`
+        progressBar.querySelector('#success').innerHTML = progress.success
+        progressBar.querySelector('#fail').innerHTML = progress.fail
     }
 </script>
 
