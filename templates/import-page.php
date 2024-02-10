@@ -29,7 +29,7 @@
 
     <textarea 
         name="urls" 
-        rows="10" 
+        rows="20" 
         cols="50" 
         id="urls" 
         class="large-text code"></textarea>

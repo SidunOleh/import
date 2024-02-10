@@ -78,24 +78,24 @@ add_action('carbon_fields_register_fields', 'restaurantPostTypeMetafields');
  * Category taxonomy
  */
 (new Taxonomy)
-    ->name('restaurant_category')
-    ->label(__('Category'))
-    ->labelPlular(__('Categories'))
+    ->name('restaurant_cuisine')
+    ->label(__('Сuisine'))
+    ->labelPlular(__('Сuisines'))
     ->postTypes(['restaurant',])
     ->register();
 
 /**
- * Category taxonomy metafields
+ * Сuisine taxonomy metafields
  */
-function categoryTaxonomyMetafields() {
-    Container::make('term_meta', 'Category metafields')
-        ->show_on_taxonomy('restaurant_category')
+function сuisineTaxonomyMetafields() {
+    Container::make('term_meta', 'Сuisine metafields')
+        ->show_on_taxonomy('restaurant_cuisine')
         ->add_fields([
             Field::make('image', 'icon', __('Icon')),
         ]);
 }
 
-add_action('carbon_fields_register_fields', 'categoryTaxonomyMetafields');
+add_action('carbon_fields_register_fields', 'сuisineTaxonomyMetafields');
 
 /**
  * Feature taxonomy

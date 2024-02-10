@@ -55,8 +55,8 @@ class RestaurantGuruSaver extends BaseSaver
             update_post_meta($postId, '_thumbnail_id', $thumbnail[0]);
         }
     
-        $catIds = $this->insertCategories($data['cuisines']);
-        wp_set_post_terms($postId, $catIds, 'restaurant_category');
+        $cuisineIds = $this->insertСuisines($data['cuisines']);
+        wp_set_post_terms($postId, $cuisineIds, 'restaurant_cuisine');
     
         $featureIds = $this->insertFeatures($data['features']);
         wp_set_post_terms($postId, $featureIds, 'restaurant_feature');
@@ -86,19 +86,19 @@ class RestaurantGuruSaver extends BaseSaver
         return $postId ? $postId : 0;
     }
 
-    private function insertCategories(array $cats): array 
+    private function insertСuisines(array $cuisines): array 
     {
-        $catIds = [];
-        foreach ($cats as $cat) {
-            $term = get_term_by('name', $cat, 'restaurant_category', ARRAY_A);
+        $cuisineIds = [];
+        foreach ($cuisines as $cuisine) {
+            $term = get_term_by('name', $cuisine, 'restaurant_cuisine', ARRAY_A);
             if (! $term ) {
-                $term = wp_insert_term($cat, 'restaurant_category');
+                $term = wp_insert_term($cuisine, 'restaurant_cuisine');
             } 
     
-            $catIds[] = $term['term_id'];
+            $cuisineIds[] = $term['term_id'];
         }
     
-        return $catIds;
+        return $cuisineIds;
     }
     
     private function insertFeatures(array $features): array 
