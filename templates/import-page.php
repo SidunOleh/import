@@ -52,7 +52,8 @@
 <div class="progress">
     <div class="progress__body">
         <span id="total">0 / 0</span>
-        <br><br>
+        <br>
+        <br>
         <?php _e('Success: ') ?> <span id="success">0</span>,
         <?php _e('Fail: ') ?> <span id="fail">0</span>
     </div>
@@ -63,16 +64,18 @@
     const failedImportsList = document.querySelector('.failed')
     const importBtn = document.querySelector('#import')
     const progressBar =  document.querySelector('.progress')
-    importBtn.addEventListener('click', async function (e) {
-        failedImportsList.innerHTML = ''
+
+    importBtn.addEventListener('click', async e => {
         container.classList.add('loading')
+        failedImportsList.innerHTML = ''
 
         const config = {}
         config.images_count = document.querySelector('#images_count').value
         config.reviews_count = document.querySelector('#reviews_count').value
 
         const urls = document.querySelector('#urls').value.split(/\r?\n/)
-        const urlsChunks = chunk(urls, 2)
+        const ulrsCount = 5
+        const urlsChunks = chunk(urls, ulrsCount)
 
         const progress = {
             total: urls.length,
@@ -109,7 +112,7 @@
         container.classList.remove('loading')
     })
 
-    async function importItems(urls, config) {
+    function importItems(urls, config) {
         const data = new FormData()
         data.append('action', 'import_items')
 
@@ -119,12 +122,21 @@
             data.append(`config[${param}]`, config[param])
         }
 
-        const response = await fetch('/wp-admin/admin-ajax.php',{
-            method: 'POST',
-            body: data,
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest()
+            xhr.timeout = 1000 * 3600
+            xhr.open('POST', '/wp-admin/admin-ajax.php')
+            xhr.onload = () => {
+                if (xhr.status == 200) {
+                    resolve(JSON.parse(xhr.response))
+                } else {
+                    reject()
+                }
+            }
+            xhr.onerror = () => reject()
+            xhr.timeout = () => reject()
+            xhr.send(data)
         })
-
-        return await response.json()
     }
 
     function chunk(arr, length) {
@@ -148,12 +160,13 @@
     }
 
     function showProgress(progress) {
-        const progressBar =  document.querySelector('.progress')
         progressBar.classList.add('show')
         progressBar.querySelector('#total').innerHTML = 
             `${progress.success + progress.fail} / ${progress.total}`
-        progressBar.querySelector('#success').innerHTML = progress.success
-        progressBar.querySelector('#fail').innerHTML = progress.fail
+        progressBar.querySelector('#success').innerHTML = 
+            progress.success
+        progressBar.querySelector('#fail').innerHTML = 
+            progress.fail
     }
 </script>
 
