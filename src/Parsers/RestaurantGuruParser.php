@@ -36,6 +36,7 @@ class RestaurantGuruParser extends BaseParser
         $info['social_media'] = $this->socialMedia($xpath);
         $info['photos'] = $this->photos($xpath);
         $info['reviews'] = $this->reviews($xpath, $url);
+        $info['dishes'] = $this->dishes($url);
 
         return $info;
     }
@@ -101,14 +102,14 @@ class RestaurantGuruParser extends BaseParser
     {
         $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
 
-        return $data['telephone'] ?? [];
+        return $data['telephone'] ?? '';
     }
 
     private function url(DOMXPath $xpath): string
     {
         $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
 
-        return $data['url'] ?? [];
+        return $data['url'] ?? '';
     }
 
     private function features(DOMXPath $xpath): array
@@ -222,5 +223,34 @@ class RestaurantGuruParser extends BaseParser
         $reviews = array_slice($reviews, 0, $reviewsCount);
 
         return $reviews;
+    }
+
+    private function dishes(string $url): array
+    {
+        $dishes = [];
+
+        $response = $this->httpClient->makeRequest('GET', $url . '/load-meals', [
+            'headers' => ['X-Requested-With' => 'XMLHttpRequest',],
+        ]);
+
+        $html = json_decode($response->getBody()->getContents(), true)['html'] ?? '';
+
+        $doc = new DOMDocument();
+        @$doc->loadHTML($html);
+        $xpath = new DOMXPath($doc);
+
+        $groups = $xpath->query('.//div[@class="groupdiv"]');
+        foreach ($groups as $group) {
+            $groupTitle = $xpath->query('.//h4[@class="group_title"]', $group)->item(0)?->textContent;
+            $groupTitle = mb_convert_encoding($groupTitle, 'ISO-8859-1', 'UTF-8');
+            if (in_array($groupTitle, ['Блюда', 'Dishes',])) {
+                $list = $xpath->query('.//span', $group);
+                foreach ($list as $item) {
+                    $dishes[] = mb_convert_encoding($item->textContent, 'ISO-8859-1', 'UTF-8');
+                }
+            }
+        }
+
+        return $dishes;
     }
 }

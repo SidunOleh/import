@@ -63,6 +63,9 @@ class RestaurantGuruSaver extends BaseSaver
     
         $locationIds = $this->insertLocation($data['address']);
         wp_set_post_terms($postId, $locationIds, 'restaurant_location');
+
+        $dishIds = $this->insertDishes($data['dishes']);
+        wp_set_post_terms($postId, $dishIds, 'restaurant_dish');
     
         $this->deleteReviews($postId);
         $this->insertReviews($data['reviews'], $postId);
@@ -87,7 +90,8 @@ class RestaurantGuruSaver extends BaseSaver
     {
         $catIds = [];
         foreach ($cats as $cat) {
-            if (! $term = get_term_by('name', $cat, 'restaurant_category', ARRAY_A)) {
+            $term = get_term_by('name', $cat, 'restaurant_category', ARRAY_A);
+            if (! $term ) {
                 $term = wp_insert_term($cat, 'restaurant_category');
             } 
     
@@ -101,7 +105,8 @@ class RestaurantGuruSaver extends BaseSaver
     {
         $featureIds = [];
         foreach ($features as $feature) {
-            if (! $term = get_term_by('name', $feature, 'restaurant_feature', ARRAY_A)) {
+            $term = get_term_by('name', $feature, 'restaurant_feature', ARRAY_A);
+            if (! $term ) {
                 $term = wp_insert_term($feature, 'restaurant_feature');
             } 
     
@@ -122,12 +127,14 @@ class RestaurantGuruSaver extends BaseSaver
             return $locationIds;
         }
     
-        if (! $regionTerm = get_term_by('name', $region, 'restaurant_location', ARRAY_A)) {
+        $regionTerm = get_term_by('name', $region, 'restaurant_location', ARRAY_A);
+        if (! $regionTerm) {
             $regionTerm = wp_insert_term($region, 'restaurant_location');
         } 
         $locationIds[] = $regionTerm['term_id'];
     
-        if (! $cityTerm = get_term_by('name', $city, 'restaurant_location', ARRAY_A)) {
+        $cityTerm = get_term_by('name', $city, 'restaurant_location', ARRAY_A);
+        if (! $cityTerm) {
             $cityTerm = wp_insert_term($city, 'restaurant_location', [
                 'parent' => $regionTerm['term_id'],
             ]);
@@ -135,6 +142,21 @@ class RestaurantGuruSaver extends BaseSaver
         $locationIds[] = $cityTerm['term_id'];
     
         return $locationIds;
+    }
+
+    private function insertDishes(array $dishes): array 
+    {
+        $dishIds = [];
+        foreach ($dishes as $dish) {
+            $term = get_term_by('name', $dish, 'restaurant_dish', ARRAY_A);
+            if (! $term ) {
+                $term = wp_insert_term($dish, 'restaurant_dish');
+            } 
+    
+            $dishIds[] = $term['term_id'];
+        }
+    
+        return $dishIds;
     }
     
     private function deleteReviews(int $postId) 

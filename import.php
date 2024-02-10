@@ -31,7 +31,7 @@ require_once IMPORT_ROOT . '/vendor/autoload.php';
     ->name('restaurant')
     ->label(__('Restaurant'))
     ->labelPlular(__('Restaurants'))
-    ->menuIcon('dashicons-drumstick')
+    ->menuIcon('dashicons-coffee')
     ->supports(['title', 'editor', 'thumbnail', 'comments',])
     ->taxonomies([
         'restaurant_category', 
@@ -128,6 +128,16 @@ add_action('carbon_fields_register_fields', 'featureTaxonomyMetafields');
     ->label(__('Location'))
     ->labelPlular(__('Locations'))
     ->hierarchical(true)
+    ->postTypes(['restaurant',])
+    ->register();
+
+/**
+ * Dish taxonomy
+ */
+(new Taxonomy)
+    ->name('restaurant_dish')
+    ->label(__('Dish'))
+    ->labelPlular(__('Dishes'))
     ->postTypes(['restaurant',])
     ->register();
     

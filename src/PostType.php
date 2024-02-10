@@ -128,13 +128,13 @@ class PostType
                     'not_found_in_trash' => __('Not Found in Trash'),
                     'menu_name'          => $this->labelPlular,
                 ],
-                'public'       => $this->public,
-                'menuPosition' => $this->menuPosition,
-                'menuIcon'     => $this->menuIcon,
-                'hierarchical' => $this->hierarchical,
-                'supports'     => $this->supports,
-                'taxonomies'   => $this->taxonomies,
-                'hasArchive'   => $this->hasArchive,
+                'public'        => $this->public,
+                'menu_position' => $this->menuPosition,
+                'menu_icon'     => $this->menuIcon,
+                'hierarchical'  => $this->hierarchical,
+                'supports'      => $this->supports,
+                'taxonomies'    => $this->taxonomies,
+                'has_archive'   => $this->hasArchive,
             ]);
         });
     }
