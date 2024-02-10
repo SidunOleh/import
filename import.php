@@ -171,6 +171,39 @@ function addImportPage() {
 }
 
 add_action('admin_menu', 'addImportPage');
+
+/**
+ * Add settings page
+ */
+function addSettingsPage() {
+    add_submenu_page(
+        'edit.php?post_type=restaurant',
+        __('Settings'),
+        __('Settings'),
+        'manage_options',
+        'settings',
+        function () {
+            require_once IMPORT_ROOT . '/templates/settings-page.php';
+        }
+    );
+}
+
+add_action('admin_menu', 'addSettingsPage');
+
+/**
+ * Update settings
+ */
+function updateSettings() {
+    $settings = $_POST['settings'] ?? [];
+
+    $result = update_option('import_settings', $settings);
+
+    wp_send_json(['status' => $result,]);
+    wp_die();
+}
+
+add_action('wp_ajax_update_settings', 'updateSettings');
+
     
 /**
  * Import items
@@ -181,7 +214,9 @@ function importItems() {
 
     $urls = $_POST['urls'] ?? [];
     $config = $_POST['config'] ?? [];
-    $config['twocaptcha_key'] = 'f8910daaa8b7288657fb62cfffcd6fa7';
+
+    $settings = get_option('import_settings', []);
+    $config['twocaptcha_key'] = $settings['twocaptcha_key'] ?? '';
     
     $progress = [
         'total' => count($urls),

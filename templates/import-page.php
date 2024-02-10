@@ -6,7 +6,8 @@
         </label>
         <input 
             name="images_count" 
-            type="number" step="1" 
+            type="number" 
+            step="1" 
             min="-1" 
             id="images_count" 
             value="50" 
