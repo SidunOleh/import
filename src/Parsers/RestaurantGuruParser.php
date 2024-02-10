@@ -23,7 +23,15 @@ class RestaurantGuruParser extends BaseParser
         
         $info = [];
         $info['source'] = $url;
-        $info = array_merge($info, $this->info($xpath, $url));
+        $info['name'] = $this->name($xpath);
+        $info['description'] = $this->description($xpath);
+        $info['thumbnail'] = $this->thumbnail($xpath);
+        $info['address'] = $this->address($xpath);
+        $info['geo'] = $this->geo($xpath);
+        $info['openingHours'] = $this->openingHours($xpath);
+        $info['cuisines'] = $this->cuisines($xpath);
+        $info['telephone'] = $this->telephone($xpath);
+        $info['url'] = $this->url($xpath);
         $info['features'] = $this->features($xpath);
         $info['social_media'] = $this->socialMedia($xpath);
         $info['photos'] = $this->photos($xpath);
@@ -32,31 +40,75 @@ class RestaurantGuruParser extends BaseParser
         return $info;
     }
 
-    private function info(DOMXPath $xpath, string $url): array
+    private function name(DOMXPath $xpath): string
     {
-        $info = [];
-
         $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
 
-        if (! $data) {
-            throw new Exception("Can not parse {$url}");
-        }
-  
-        $info['name'] = $data['name'] ?? '';
-        $info['description'] = $data['review']['description'] ?? '';
-        $info['thumbnail'] = $data['image'] ?? '';
-        $info['address']['addressCountry'] = $data['address']['addressCountry'] ?? '';
-        $info['address']['addressLocality'] = $data['address']['addressLocality'] ?? '';
-        $info['address']['addressRegion'] = $data['address']['addressRegion'] ?? '';
-        $info['address']['streetAddress'] = $data['address']['streetAddress'] ?? '';
-        $info['geo']['latitude'] = $data['geo']['latitude'] ?? '';
-        $info['geo']['longitude'] = $data['geo']['longitude'] ?? '';
-        $info['openingHours'] = $data['openingHours'] ?? [];
-        $info['cuisines'] = $data['servesCuisine'] ?? [];
-        $info['telephone'] = $data['telephone'] ?? '';
-        $info['url'] = $data['url'] ?? '';
+        return $data['name'] ?? '';
+    }
 
-        return $info;
+    private function description(DOMXPath $xpath): string
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        return $data['review']['description'] ?? '';
+    }
+
+    private function thumbnail(DOMXPath $xpath): string
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        return $data['image'] ?? '';
+    }
+
+    private function address(DOMXPath $xpath): array
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        $address['addressCountry'] = $data['address']['addressCountry'] ?? '';
+        $address['addressLocality'] = $data['address']['addressLocality'] ?? '';
+        $address['addressRegion'] = $data['address']['addressRegion'] ?? '';
+        $address['streetAddress'] = $data['address']['streetAddress'] ?? '';
+
+        return $address;
+    }
+
+    private function geo(DOMXPath $xpath): array
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        $geo['latitude'] = $data['geo']['latitude'] ?? '';
+        $geo['longitude'] = $data['geo']['longitude'] ?? '';
+
+        return $geo;
+    }
+
+    private function openingHours(DOMXPath $xpath): array
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        return $data['openingHours'] ?? [];
+    }
+
+    private function cuisines(DOMXPath $xpath): array
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        return $data['servesCuisine'] ?? [];
+    }
+
+    private function telephone(DOMXPath $xpath): string
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        return $data['telephone'] ?? [];
+    }
+
+    private function url(DOMXPath $xpath): string
+    {
+        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+
+        return $data['url'] ?? [];
     }
 
     private function features(DOMXPath $xpath): array
