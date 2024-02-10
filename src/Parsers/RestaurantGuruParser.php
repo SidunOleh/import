@@ -43,16 +43,21 @@ class RestaurantGuruParser extends BaseParser
 
     private function name(DOMXPath $xpath): string
     {
-        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+        $name = $xpath->query('.//h1')[0]?->textContent ?? '';
 
-        return $data['name'] ?? '';
+        return trim($name);
     }
 
     private function description(DOMXPath $xpath): string
     {
-        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+        $description = '';
+        
+        $paragraphs = $xpath->query('.//div[@class="description"]/div')[0];
+        if (! empty($paragraphs)) {
+            $description = $paragraphs->ownerDocument->saveHTML($paragraphs);
+        }
 
-        return $data['review']['description'] ?? '';
+        return trim($description);
     }
 
     private function thumbnail(DOMXPath $xpath): string
@@ -66,50 +71,91 @@ class RestaurantGuruParser extends BaseParser
     {
         $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
 
-        $address['addressCountry'] = $data['address']['addressCountry'] ?? '';
-        $address['addressLocality'] = $data['address']['addressLocality'] ?? '';
-        $address['addressRegion'] = $data['address']['addressRegion'] ?? '';
-        $address['streetAddress'] = $data['address']['streetAddress'] ?? '';
+        if (! empty($data)) {
+            $address['addressCountry'] = $data['address']['addressCountry'] ?? '';
+            $address['addressLocality'] = $data['address']['addressLocality'] ?? '';
+            $address['addressRegion'] = $data['address']['addressRegion'] ?? '';
+            $address['streetAddress'] = $data['address']['streetAddress'] ?? '';
+        } else {
+            $address['addressCountry'] = '';
+            $address['addressLocality'] = '';
+            $address['addressRegion'] = '';
+
+            $streetAddress = $xpath->query('.//div[@id="info_location"]/div')[1]->textContent ?? '';
+            $address['streetAddress'] = trim($streetAddress);
+        }
 
         return $address;
     }
 
     private function geo(DOMXPath $xpath): array
     {
-        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+        $geo = [];
 
-        $geo['latitude'] = $data['geo']['latitude'] ?? '';
-        $geo['longitude'] = $data['geo']['longitude'] ?? '';
+        $directionUrl = $xpath->query('.//a[@class="direction_link"]')[0]?->getAttribute('href');
+        if ($components = parse_url($directionUrl)) {
+            parse_str($components['query'], $params);
+            $destination = explode(',', $params['destination']);
+            $geo['latitude'] = $destination[0];
+            $geo['longitude'] = $destination[1];
+        }
 
         return $geo;
     }
 
     private function openingHours(DOMXPath $xpath): array
     {
-        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+        $openingHours = [];
 
-        return $data['openingHours'] ?? [];
+        $items = $xpath->query('.//table[@class="schedule-table"]/tr');
+        foreach ($items as $item) {
+            $day = $xpath->query('.//td[1]/span[@class="full-day"]', $item)[0]?->textContent ?? '';
+            $day = trim($day);
+
+            $hours = $xpath->query('.//td[2]', $item)[0] ?? '';
+            if (! empty($hours)) {
+                $hours = $hours->ownerDocument->saveHTML($hours);
+                $hours = preg_replace('/<br>/', ',', $hours);
+                $hours = strip_tags($hours);
+                $hours = trim($hours);
+            }
+            
+            $openingHours[] = "{$day} {$hours}";
+        }
+
+        return $openingHours;
     }
 
     private function cuisines(DOMXPath $xpath): array
     {
+        $cuisines = [];
+
         $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
 
-        return $data['servesCuisine'] ?? [];
+        if (! empty($data)) {
+            $cuisines = $data['servesCuisine'] ?? [];
+        } else {
+            $items = $xpath->query('.//div[@class="cuisine_hidden"]/span');
+            foreach ($items as $item) {
+                $cuisines[] = $item->textContent;
+            }
+        }
+
+        return $cuisines;
     }
 
     private function telephone(DOMXPath $xpath): string
     {
-        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+        $telephone = $xpath->query('.//a[@class="call"]')[0]?->textContent ?? '';
 
-        return $data['telephone'] ?? '';
+        return trim($telephone);
     }
 
     private function url(DOMXPath $xpath): string
     {
-        $data = json_decode($xpath->query('.//script[@type="application/ld+json"]')[0]?->textContent, true);
+        $website = $xpath->query('.//div[@class="website"]//a')[0]?->textContent ?? '';
 
-        return $data['url'] ?? '';
+        return trim($website);
     }
 
     private function features(DOMXPath $xpath): array
