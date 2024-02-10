@@ -43,7 +43,12 @@
                 method: 'POST',
                 body: data,
             })
-            alert('Successfully updated.')
+
+            if (response.status) {
+                alert('Successfully updated.')
+            } else {
+                throw new Error()
+            }
         } catch {
             alert('Error. Try again.')
         }
