@@ -54,6 +54,13 @@ class RestaurantGuruSaver extends BaseSaver
         if (! empty($data['thumbnail'])) {
             $thumbnail = $this->uploadPhotos([['src' => $data['thumbnail'],]]);
             update_post_meta($postId, '_thumbnail_id', $thumbnail[0]);
+        } else {
+            foreach ($photoIds as $photoId) {
+                if (wp_attachment_is_image($photoId)) {
+                    update_post_meta($postId, '_thumbnail_id', $photoId);
+                    break;
+                }
+            }
         }
     
         $cuisineIds = $this->insertСuisines($data['cuisines']);
