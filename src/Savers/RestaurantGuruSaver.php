@@ -29,7 +29,8 @@ class RestaurantGuruSaver extends BaseSaver
         carbon_set_post_meta($postId, 'address_country', $data['address']['addressCountry']);
         carbon_set_post_meta($postId, 'address_locality', $data['address']['addressLocality']);
         carbon_set_post_meta($postId, 'address_region', $data['address']['addressRegion']);
-        carbon_set_post_meta($postId, 'address_address', $data['address']['streetAddress']);
+        carbon_set_post_meta($postId, 'address_street', $data['address']['streetAddress']);
+        carbon_set_post_meta($postId, 'address_full', $data['address']['fullAddress']);
     
         carbon_set_post_meta($postId, 'geo_latitude', $data['geo']['latitude']);
         carbon_set_post_meta($postId, 'geo_longitude', $data['geo']['longitude']);

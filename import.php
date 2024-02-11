@@ -49,7 +49,8 @@ function restaurantPostTypeMetafields() {
             Field::make('text', 'address_country', __('Country')),
             Field::make('text', 'address_locality', __('Locality')),
             Field::make('text', 'address_region', __('Region')),
-            Field::make('text', 'address_address', __('Address')),
+            Field::make('text', 'address_street', __('Street')),
+            Field::make('text', 'address_full', __('Full')),
         ])
         ->add_tab(__('Geo'), [
             Field::make('text', 'geo_latitude', __('Latitude')),

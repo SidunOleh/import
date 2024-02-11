@@ -80,10 +80,11 @@ class RestaurantGuruParser extends BaseParser
             $address['addressCountry'] = '';
             $address['addressLocality'] = '';
             $address['addressRegion'] = '';
-
-            $streetAddress = $xpath->query('.//div[@id="info_location"]/div')[1]->textContent ?? '';
-            $address['streetAddress'] = trim($streetAddress);
+            $address['streetAddress'] = '';
         }
+
+        $fullAddress = $xpath->query('.//div[@id="info_location"]/div')[1]->textContent ?? '';
+        $address['fullAddress'] = trim($fullAddress);
 
         return $address;
     }
