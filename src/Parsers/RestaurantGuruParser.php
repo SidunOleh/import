@@ -83,7 +83,7 @@ class RestaurantGuruParser extends BaseParser
             $address['streetAddress'] = '';
         }
 
-        $fullAddress = $xpath->query('.//div[@id="info_location"]/div')[1]->textContent ?? '';
+        $fullAddress = $xpath->query('.//div[@id="info_location"]/div')[1]?->textContent ?? '';
         $address['fullAddress'] = trim($fullAddress);
 
         return $address;
