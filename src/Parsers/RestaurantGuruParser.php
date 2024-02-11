@@ -241,17 +241,20 @@ class RestaurantGuruParser extends BaseParser
                 $review = [];
                 $reviewsNodes = $xpath->query('.//div[@class="o_review"]');
                 foreach ($reviewsNodes as $reviewsNode) {
-                    $review['author_name'] = 
-                        $xpath->query('.//a[@class="user_info__name"]', $reviewsNode)[0]?->textContent;
+                    $authorName = $xpath->query('.//a[@class="user_info__name"]', $reviewsNode)[0]?->textContent;
+                    $review['author_name'] = mb_convert_encoding($authorName, 'ISO-8859-1', 'UTF-8');
+                    
                     if ($img = $xpath->query('.//img', $reviewsNode)[0]) {
                         $review['author_img'] = $img->getAttribute('data-src');
                     } else {
                         $review['author_img'] = '';
                     }
-                    $review['text'] = 
-                        $xpath->query('.//span[@class="text_full"]', $reviewsNode)[0]?->textContent;
-                    $review['stars'] = 
-                        $reviewsNode->getAttribute('data-score');
+                    
+                    $text = $xpath->query('.//span[@class="text_full"]', $reviewsNode)[0]?->textContent;;
+                    $review['text'] = mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
+
+                    $review['stars'] = $reviewsNode->getAttribute('data-score');
+
                     $reviews[] = $review;
                 }
             },
