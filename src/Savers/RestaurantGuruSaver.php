@@ -14,7 +14,7 @@ class RestaurantGuruSaver extends BaseSaver
     public function save(array $data): int
     {
         $postId = wp_insert_post([
-            'ID' => $this->restaurantIdBySource($data['source']),
+            'ID' => $this->restaurantExists($data['source']),
             'post_title' => $data['name'],
             'post_content' => $data['description'],
             'post_type' => 'restaurant',
@@ -78,7 +78,7 @@ class RestaurantGuruSaver extends BaseSaver
         return $postId;
     }
 
-    private function restaurantIdBySource(string $source): int 
+    private function restaurantExists(string $source): int 
     {
         global $wpdb;
     
