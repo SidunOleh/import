@@ -186,6 +186,7 @@ class RestaurantGuruSaver extends BaseSaver
                 'comment_author' => $review['author_name'],
                 'comment_content' => $review['text'],
                 'comment_post_ID' => $postId,
+                'comment_date' => date('Y-m-d H:i:s', $this->reviewTimeStrToTime($review['date']) ?: time()),
             ]);
 
             if (! $reviewId) {
@@ -200,6 +201,45 @@ class RestaurantGuruSaver extends BaseSaver
     
         return $reviewIds;
     }
+
+    private function reviewTimeStrToTime(string $str): int|false 
+    {
+        $str = mb_strtolower($str);
+        $str = preg_replace('/ назад.*/', '', $str);
+    
+        $count = '';
+        $period = '';
+        if (preg_match('/час|часа|часов/', $str)) {
+            preg_match('/[0-9]+/', $str, $mathes);
+            $count = $mathes[0] ?? 1;
+            $period = 'hour';
+        }
+        if (preg_match('/день|дня|дней/', $str)) {
+            preg_match('/[0-9]+/', $str, $mathes);
+            $count = $mathes[0] ?? 1;
+            $period = 'day';
+        }
+        if (preg_match('/месяц|месяца|месяцев/', $str)) {
+            preg_match('/[0-9]+/', $str, $mathes);
+            $count = $mathes[0] ?? 1;
+            $period = 'month';
+        }
+        if (preg_match('/год|года|лет/', $str)) {
+            preg_match('/[0-9]+/', $str, $mathes);
+            $count = $mathes[0] ?? 1;
+            $period = 'year';
+        }
+        if (preg_match('/вчера/', $str)) {
+            $count = 1;
+            $period = 'day';
+        }
+        if (preg_match('/сегодня/', $str)) {
+            $count = 0;
+            $period = 'day';
+        }
+    
+        return ($period and $count) ? strtotime("{$count} {$period} ago") : false;
+    }    
 
     private function uploadPhotos(array $photos): array 
     {

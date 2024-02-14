@@ -255,6 +255,9 @@ class RestaurantGuruParser extends BaseParser
 
                     $review['stars'] = $reviewsNode->getAttribute('data-score');
 
+                    $date = $xpath->query('.//div[@class="user_info__head"]/span', $reviewsNode)[0]?->textContent;
+                    $review['date'] = mb_convert_encoding($date, 'ISO-8859-1', 'UTF-8');
+
                     $reviews[] = $review;
                 }
             },
