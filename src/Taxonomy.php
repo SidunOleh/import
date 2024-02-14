@@ -16,13 +16,16 @@ class Taxonomy
 
     private $hierarchical;
 
+    private $publiclyQueryable;
+
     public function __construct()
     {
         $this->name = '';
         $this->postTypes = [];
         $this->label = '';
         $this->labelPlular = '';
-        $this->hierarchical = false;        
+        $this->hierarchical = false;
+        $this->publiclyQueryable = true;        
     }
 
     public function name(string $name): self
@@ -60,6 +63,13 @@ class Taxonomy
         return $this;
     }
 
+    public function publiclyQueryable(bool $publiclyQueryable): self
+    {
+        $this->publiclyQueryable = $publiclyQueryable;
+
+        return $this;
+    }
+
     public function register(): void
     {
         add_action('init', function () {
@@ -81,6 +91,7 @@ class Taxonomy
                     'back_to_items'     => __('← Back to ') . $this->labelPlular,
                 ],
                 'hierarchical'          => $this->hierarchical,
+                'publicly_queryable'    => $this->publiclyQueryable,
             ]);
         });
     }

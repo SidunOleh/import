@@ -33,6 +33,7 @@ require_once IMPORT_ROOT . '/vendor/autoload.php';
     ->labelPlular(__('Restaurants'))
     ->menuIcon('dashicons-coffee')
     ->supports(['title', 'editor', 'thumbnail', 'comments',])
+    ->rewrite(['slug' => 'ресторан',])
     ->taxonomies([
         'restaurant_category', 
         'restaurant_location', 
@@ -83,6 +84,7 @@ add_action('carbon_fields_register_fields', 'restaurantPostTypeMetafields');
     ->label(__('Сuisine'))
     ->labelPlular(__('Сuisines'))
     ->postTypes(['restaurant',])
+    ->publiclyQueryable(false)
     ->register();
 
 /**
@@ -93,6 +95,7 @@ function сuisineTaxonomyMetafields() {
         ->show_on_taxonomy('restaurant_cuisine')
         ->add_fields([
             Field::make('image', 'icon', __('Icon')),
+            Field::make('checkbox', 'show_in_sidebar', __('Show in sidebar')),
         ]);
 }
 
@@ -106,6 +109,7 @@ add_action('carbon_fields_register_fields', 'сuisineTaxonomyMetafields');
     ->label(__('Feature'))
     ->labelPlular(__('Features'))
     ->postTypes(['restaurant',])
+    ->publiclyQueryable(false)
     ->register();
 
 /**
@@ -116,6 +120,7 @@ function featureTaxonomyMetafields() {
         ->show_on_taxonomy('restaurant_feature')
         ->add_fields([
             Field::make('image', 'icon', __('Icon')),
+            Field::make('checkbox', 'show_in_sidebar', __('Show in sidebar')),
         ]);
 }
 
@@ -130,6 +135,7 @@ add_action('carbon_fields_register_fields', 'featureTaxonomyMetafields');
     ->labelPlular(__('Locations'))
     ->hierarchical(true)
     ->postTypes(['restaurant',])
+    ->publiclyQueryable(false)
     ->register();
 
 /**
@@ -140,6 +146,7 @@ add_action('carbon_fields_register_fields', 'featureTaxonomyMetafields');
     ->label(__('Dish'))
     ->labelPlular(__('Dishes'))
     ->postTypes(['restaurant',])
+    ->publiclyQueryable(false)
     ->register();
     
 /**

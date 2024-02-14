@@ -26,6 +26,8 @@ class PostType
 
     private $hasArchive;
 
+    private $rewrite;
+
     public function __construct()
     {
         $this->name = '';
@@ -38,6 +40,7 @@ class PostType
         $this->supports = ['title', 'editor', 'thumbnail',];
         $this->hierarchical = false;      
         $this->hasArchive = true;  
+        $this->rewrite = [];  
     }
 
     public function name(string $name): self
@@ -110,6 +113,13 @@ class PostType
         return $this;
     }
 
+    public function rewrite(array $rewrite): self
+    {
+        $this->rewrite = $rewrite;
+
+        return $this;
+    }
+
     public function register(): void
     {
         add_action('init', function () {
@@ -135,6 +145,7 @@ class PostType
                 'supports'      => $this->supports,
                 'taxonomies'    => $this->taxonomies,
                 'has_archive'   => $this->hasArchive,
+                'rewrite'       => $this->rewrite,
             ]);
         });
     }
