@@ -63,18 +63,11 @@ class RestaurantGuruSaver extends BaseSaver
             }
         }
     
-        $cuisineIds = $this->insertСuisines($data['cuisines']);
-        wp_set_post_terms($postId, $cuisineIds, 'restaurant_cuisine');
-    
-        $featureIds = $this->insertFeatures($data['features']);
-        wp_set_post_terms($postId, $featureIds, 'restaurant_feature');
-    
-        $locationIds = $this->insertLocation($data['address']);
-        wp_set_post_terms($postId, $locationIds, 'restaurant_location');
+        $this->setСuisines($data['cuisines'], $postId);
+        $this->setFeatures($data['features'], $postId);
+        $this->setLocation($data['address'], $postId);
+        $this->setDishes($data['dishes'], $postId);
 
-        $dishIds = $this->insertDishes($data['dishes']);
-        wp_set_post_terms($postId, $dishIds, 'restaurant_dish');
-    
         $this->deleteReviews($postId);
         $this->insertReviews($data['reviews'], $postId);
 
@@ -94,7 +87,7 @@ class RestaurantGuruSaver extends BaseSaver
         return $postId ? $postId : 0;
     }
 
-    private function insertСuisines(array $cuisines): array 
+    private function setСuisines(array $cuisines, int $postId): array 
     {
         $cuisineIds = [];
         foreach ($cuisines as $cuisine) {
@@ -105,11 +98,13 @@ class RestaurantGuruSaver extends BaseSaver
     
             $cuisineIds[] = $term['term_id'];
         }
+
+        wp_set_post_terms($postId, $cuisineIds, 'restaurant_cuisine');
     
         return $cuisineIds;
     }
     
-    private function insertFeatures(array $features): array 
+    private function setFeatures(array $features, int $postId): array 
     {
         $featureIds = [];
         foreach ($features as $feature) {
@@ -120,11 +115,13 @@ class RestaurantGuruSaver extends BaseSaver
     
             $featureIds[] = $term['term_id'];
         }
+
+        wp_set_post_terms($postId, $featureIds, 'restaurant_feature');
     
         return $featureIds;
     }
     
-    private function insertLocation(array $location): array 
+    private function setLocation(array $location, int $postId): array 
     {
         $locationIds = [];
 
@@ -148,11 +145,13 @@ class RestaurantGuruSaver extends BaseSaver
             ]);
         } 
         $locationIds[] = $cityTerm['term_id'];
+
+        wp_set_post_terms($postId, $locationIds, 'restaurant_location');
     
         return $locationIds;
     }
 
-    private function insertDishes(array $dishes): array 
+    private function setDishes(array $dishes, int $postId): array 
     {
         $dishIds = [];
         foreach ($dishes as $dish) {
@@ -163,6 +162,8 @@ class RestaurantGuruSaver extends BaseSaver
     
             $dishIds[] = $term['term_id'];
         }
+
+        wp_set_post_terms($postId, $dishIds, 'restaurant_dish');
     
         return $dishIds;
     }
