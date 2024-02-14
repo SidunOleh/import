@@ -247,6 +247,7 @@ function importItems() {
                 'message' => $e->getMessage(),
                 'url' => $url,
                 'time' => date('Y-m-d H:i:s'),
+                'trace' => $e->getTraceAsString(),
             ]) . PHP_EOL, 3, IMPORT_ROOT . '/logs/error_log');
         }
 
