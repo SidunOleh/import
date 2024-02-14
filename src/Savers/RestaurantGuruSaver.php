@@ -263,7 +263,7 @@ class RestaurantGuruSaver extends BaseSaver
         return $photoIds;
     }
     
-    private function attachmentExists(string $name): int|false
+    private function attachmentExists(string $name): int
     {
         global $wpdb;
 
@@ -273,6 +273,6 @@ class RestaurantGuruSaver extends BaseSaver
             WHERE `post_type` = 'attachment'
             AND `post_title` = '{$name}'");
     
-        return $attachmentId ? $attachmentId : false;
+        return $attachmentId ? $attachmentId : 0;
     }
 }
