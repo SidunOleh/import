@@ -205,40 +205,16 @@ class RestaurantGuruSaver extends BaseSaver
     private function reviewTimeStrToTime(string $str): int|false 
     {
         $str = mb_strtolower($str);
-        $str = preg_replace('/ назад.*/', '', $str);
-    
-        $count = '';
-        $period = '';
-        if (preg_match('/час|часа|часов/', $str)) {
-            preg_match('/[0-9]+/', $str, $mathes);
-            $count = $mathes[0] ?? 1;
-            $period = 'hour';
-        }
-        if (preg_match('/день|дня|дней/', $str)) {
-            preg_match('/[0-9]+/', $str, $mathes);
-            $count = $mathes[0] ?? 1;
-            $period = 'day';
-        }
-        if (preg_match('/месяц|месяца|месяцев/', $str)) {
-            preg_match('/[0-9]+/', $str, $mathes);
-            $count = $mathes[0] ?? 1;
-            $period = 'month';
-        }
-        if (preg_match('/год|года|лет/', $str)) {
-            preg_match('/[0-9]+/', $str, $mathes);
-            $count = $mathes[0] ?? 1;
-            $period = 'year';
-        }
-        if (preg_match('/вчера/', $str)) {
-            $count = 1;
-            $period = 'day';
-        }
-        if (preg_match('/сегодня/', $str)) {
-            $count = 0;
-            $period = 'day';
-        }
-    
-        return ($period and $count) ? strtotime("{$count} {$period} ago") : false;
+        $str = preg_replace('/ на .*/', '', $str);
+        $str = preg_replace('/назад/', 'ago', $str);
+        $str = preg_replace('/часов|часа|час/', 'hour', $str);
+        $str = preg_replace('/день|дней|дня/', 'day', $str);
+        $str = preg_replace('/месяцев|месяца|месяц/', 'month', $str);
+        $str = preg_replace('/года|год|лет/', 'year', $str);
+        $str = preg_replace('/вчера/', 'yesterday', $str);
+        $str = preg_replace('/сегодня/', 'today', $str);
+        
+        return strtotime($str);
     }    
 
     private function uploadPhotos(array $photos): array 
