@@ -213,7 +213,11 @@ class RestaurantGuruSaver extends BaseSaver
         $str = preg_replace('/года|год|лет/', 'year', $str);
         $str = preg_replace('/вчера/', 'yesterday', $str);
         $str = preg_replace('/сегодня/', 'today', $str);
-        
+      
+        if (in_array($str, ['year ago', 'month ago', 'day ago', 'hour ago',])) {
+            $str = '1 ' . $str;
+        } 
+
         return strtotime($str);
     }    
 
