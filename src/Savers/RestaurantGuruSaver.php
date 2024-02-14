@@ -26,6 +26,7 @@ class RestaurantGuruSaver extends BaseSaver
             throw new Exception("Can not create post for {$data['source']}");
         }
     
+        // metafields
         carbon_set_post_meta($postId, 'address_country', $data['address']['addressCountry']);
         carbon_set_post_meta($postId, 'address_locality', $data['address']['addressLocality']);
         carbon_set_post_meta($postId, 'address_region', $data['address']['addressRegion']);
@@ -50,7 +51,8 @@ class RestaurantGuruSaver extends BaseSaver
         foreach ($photoIds as $i => $photoId) {
             update_post_meta($postId, "_gallery|||{$i}|value", $photoId);
         }
-    
+        
+        // thumbnail
         if (! empty($data['thumbnail'])) {
             $thumbnail = $this->uploadPhotos([['src' => $data['thumbnail'],]]);
             update_post_meta($postId, '_thumbnail_id', $thumbnail[0]);
@@ -63,11 +65,13 @@ class RestaurantGuruSaver extends BaseSaver
             }
         }
     
+        // taxonomies
         $this->setСuisines($data['cuisines'], $postId);
         $this->setFeatures($data['features'], $postId);
         $this->setLocation($data['address'], $postId);
         $this->setDishes($data['dishes'], $postId);
 
+        // comments
         $this->deleteReviews($postId);
         $this->insertReviews($data['reviews'], $postId);
 
