@@ -253,6 +253,7 @@ class RestaurantGuruSaver extends BaseSaver
                     'message' => $e->getMessage(),
                     'url' => $src,
                     'time' => date('Y-m-d H:i:s'),
+                    'trace' => $e->getTraceAsString(),
                 ]) . PHP_EOL, 3, IMPORT_ROOT . '/logs/error_log');
             },
         ]);

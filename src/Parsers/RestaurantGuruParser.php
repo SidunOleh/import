@@ -264,6 +264,7 @@ class RestaurantGuruParser extends BaseParser
                     'message' => $e->getMessage(),
                     'url' => "{$url}/reviews/{$page}",
                     'time' => date('Y-m-d H:i:s'),
+                    'trace' => $e->getTraceAsString(),
                 ]) . PHP_EOL, 3, IMPORT_ROOT . '/logs/error_log');
             },
         ]);
