@@ -96,7 +96,7 @@ class RestaurantGuruSaver extends BaseSaver
         $cuisineIds = [];
         foreach ($cuisines as $cuisine) {
             $term = get_term_by('name', $cuisine, 'restaurant_cuisine', ARRAY_A);
-            if (! $term ) {
+            if (! $term) {
                 $term = wp_insert_term($cuisine, 'restaurant_cuisine');
             } 
     
@@ -160,7 +160,7 @@ class RestaurantGuruSaver extends BaseSaver
         $dishIds = [];
         foreach ($dishes as $dish) {
             $term = get_term_by('name', $dish, 'restaurant_dish', ARRAY_A);
-            if (! $term ) {
+            if (! $term) {
                 $term = wp_insert_term($dish, 'restaurant_dish');
             } 
     
