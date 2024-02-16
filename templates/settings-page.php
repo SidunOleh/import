@@ -26,7 +26,6 @@
 
 </div>
 
-
 <script>
     const container = document.querySelector('#wpbody')
     const updateBtn = document.querySelector('#update-btn')
