@@ -60,8 +60,8 @@ function restaurantPostTypeMetafields() {
         ->add_tab(__( 'Opening hours'), [
             Field::make('complex', 'opening_hours', __('Opening hours'))
                 ->add_fields( [
-                    Field::make( 'text', 'day', __('Day') ),
-                    Field::make( 'text', 'hours', __('Hours') ),
+                    Field::make('text', 'day', __('Day')),
+                    Field::make('text', 'hours', __('Hours')),
                 ] ),
         ])
         ->add_tab(__('Contact info'), [
