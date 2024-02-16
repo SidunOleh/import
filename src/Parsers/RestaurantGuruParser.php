@@ -196,6 +196,12 @@ class RestaurantGuruParser extends BaseParser
             }
         }
 
+        foreach ($photos as $i => $photo) {
+            if (isset($photo['is_video'])) {
+                unset($photos[$i]);
+            }
+        }
+
         if ($imagesCount != -1) {
             $photos = array_slice($photos, 0, $imagesCount);
         }
