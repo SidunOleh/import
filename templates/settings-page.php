@@ -25,14 +25,14 @@
         </label>
         <?php echo wp_editor($template, "description-template-{$i}", [
             'textarea_name' => 'description_template',
-            'textarea_rows' => 10,
+            'textarea_rows' => 5,
         ]) ?>
     </p>
     <?php endforeach ?>
 
     <p>
         <label for="description_templates">
-            <?php _e('Description template') ?>
+            <?php _e('Add description template') ?>
         </label>
         <?php echo wp_editor('', 'description-template', [
             'textarea_name' => 'description_template',
