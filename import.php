@@ -33,7 +33,7 @@ require_once IMPORT_ROOT . '/vendor/autoload.php';
     ->labelPlular(__('Restaurants'))
     ->menuIcon('dashicons-coffee')
     ->supports(['title', 'editor', 'thumbnail', 'comments',])
-    ->rewrite(['slug' => 'ресторан',])
+    ->rewrite(['slug' => 'restoran',])
     ->taxonomies([
         'restaurant_cuisine', 
         'restaurant_location', 
@@ -85,7 +85,7 @@ add_action('carbon_fields_register_fields', 'restaurantPostTypeMetafields');
     ->label(__('Сuisine'))
     ->labelPlular(__('Сuisines'))
     ->postTypes(['restaurant',])
-    ->rewrite(['slug' => 'kuchnja',])
+    ->rewrite(['slug' => 'kuhnja',])
     ->register();
 
 /**
@@ -122,7 +122,7 @@ add_action('carbon_fields_register_fields', 'сuisineTaxonomyMetafields');
     ->label(__('Cuisine-Location'))
     ->labelPlular(__('Cuisines-Locations'))
     ->postTypes(['restaurant',])
-    ->rewrite(['slug' => 'kuchnja-lokacija',])
+    ->rewrite(['slug' => 'kuhnja-lokacija',])
     ->register();
 
 /**
