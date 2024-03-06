@@ -15,6 +15,31 @@
             id="twocaptcha_key">
     </p>
 
+    <?php
+    $templates = $settings['description_templates'] ?? [];
+    foreach ($templates as $i => $template):
+    ?>
+    <p>
+        <label for="description_templates">
+            <?php _e('Description template') ?>
+        </label>
+        <?php echo wp_editor($template, "description-template-{$i}", [
+            'textarea_name' => 'description_template',
+            'textarea_rows' => 10,
+        ]) ?>
+    </p>
+    <?php endforeach ?>
+
+    <p>
+        <label for="description_templates">
+            <?php _e('Description template') ?>
+        </label>
+        <?php echo wp_editor('', 'description-template', [
+            'textarea_name' => 'description_template',
+            'textarea_rows' => 10,
+        ]) ?>
+    </p>
+
     <p>
         <input 
             type="submit"
@@ -37,14 +62,23 @@
         data.append('action', 'update_settings')
         data.append('settings[twocaptcha_key]', document.querySelector('#twocaptcha_key').value)
 
+        const templates = document.querySelectorAll('[name=description_template]')
+        for (const template of templates) {
+            if (template.value) {
+                data.append('settings[description_templates][]', template.value)
+            }
+        }
+
         try {
             const response = await fetch('/wp-admin/admin-ajax.php', {
                 method: 'POST',
                 body: data,
             })
 
-            if (response.status) {
-                alert('Successfully updated.')
+           const body = await response.json()
+
+            if (body.success) {
+                location.reload()
             } else {
                 throw new Error()
             }

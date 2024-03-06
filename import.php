@@ -35,9 +35,10 @@ require_once IMPORT_ROOT . '/vendor/autoload.php';
     ->supports(['title', 'editor', 'thumbnail', 'comments',])
     ->rewrite(['slug' => 'ресторан',])
     ->taxonomies([
-        'restaurant_category', 
+        'restaurant_cuisine', 
         'restaurant_location', 
         'restaurant_feature',
+        'restaurant_cuisine_location',
     ])->register();
 
 function restaurantPostTypeMetafields() {
@@ -77,14 +78,14 @@ function restaurantPostTypeMetafields() {
 add_action('carbon_fields_register_fields', 'restaurantPostTypeMetafields');
 
 /**
- * Category taxonomy
+ * Cuisine taxonomy
  */
 (new Taxonomy)
     ->name('restaurant_cuisine')
     ->label(__('Сuisine'))
     ->labelPlular(__('Сuisines'))
     ->postTypes(['restaurant',])
-    ->publiclyQueryable(false)
+    ->rewrite(['slug' => 'kuchnja',])
     ->register();
 
 /**
@@ -100,6 +101,29 @@ function сuisineTaxonomyMetafields() {
 }
 
 add_action('carbon_fields_register_fields', 'сuisineTaxonomyMetafields');
+
+/**
+ * Location taxonomy
+ */
+(new Taxonomy)
+    ->name('restaurant_location')
+    ->label(__('Location'))
+    ->labelPlular(__('Locations'))
+    ->hierarchical(true)
+    ->postTypes(['restaurant',])
+    ->rewrite(['slug' => 'lokacija',])
+    ->register();
+
+/**
+ * Cuisine-Location taxonomy
+ */
+(new Taxonomy)
+    ->name('restaurant_cuisine_location')
+    ->label(__('Cuisine-Location'))
+    ->labelPlular(__('Cuisines-Locations'))
+    ->postTypes(['restaurant',])
+    ->rewrite(['slug' => 'kuchnja-lokacija',])
+    ->register();
 
 /**
  * Feature taxonomy
@@ -127,18 +151,6 @@ function featureTaxonomyMetafields() {
 add_action('carbon_fields_register_fields', 'featureTaxonomyMetafields');
 
 /**
- * Location taxonomy
- */
-(new Taxonomy)
-    ->name('restaurant_location')
-    ->label(__('Location'))
-    ->labelPlular(__('Locations'))
-    ->hierarchical(true)
-    ->postTypes(['restaurant',])
-    ->publiclyQueryable(false)
-    ->register();
-
-/**
  * Dish taxonomy
  */
 (new Taxonomy)
@@ -161,6 +173,94 @@ function commentsMetafields() {
 }
 
 add_action('carbon_fields_register_fields', 'commentsMetafields');
+
+/**
+ * Generate Cuisine-Location terms
+ */
+function generateCuisineLocationTerms() {
+    $cuisines = get_terms( [
+        'taxonomy' => 'restaurant_cuisine',
+        'hide_empty' => false,
+    ] );
+    $locations = get_terms( [
+        'taxonomy' => 'restaurant_location',
+        'hide_empty' => false,
+    ] );
+    foreach ($cuisines as $cuisine) {
+        foreach ($locations as $location) {
+            $name = $cuisine->name . '-' .$location->name;
+            $slug = $cuisine->slug . '_' .$location->slug;
+
+            if (get_term_by('slug', $slug)) {
+                continue;
+            }
+           
+            $term = wp_insert_term($name, 'restaurant_cuisine_location', [
+                'slug' => $slug,
+            ]);
+           
+            if ($term instanceof WP_Error) {
+                continue;
+            }
+           
+            $posIds = get_posts([
+                'post_type' => 'restaurant',
+                'fields' => 'ids',
+                'posts_per_page'  => -1,
+                'tax_query' => [
+                    'relation' => 'AND',
+                    [
+                        'taxonomy' => 'restaurant_cuisine',
+                        'field' => 'id',
+                        'terms' => $cuisine->term_id, 
+                    ],
+                    [
+                        'taxonomy' => 'restaurant_location',
+                        'field' => 'id',
+                        'terms' => $location->term_id, 
+                    ],
+                ],
+            ]);
+            array_map(function ($postId) use($term) {
+                wp_set_post_terms($postId, [$term['term_id']], 'restaurant_cuisine_location');
+            }, $posIds);
+        }
+    }
+
+    wp_send_json_success();
+    wp_die();
+}
+
+add_action('wp_ajax_generate_cuisine_location_terms', 'generateCuisineLocationTerms');
+
+/**
+ * Generate Cuisine-Location terms button
+ */
+function addGenerateCuisineLocationTermsBtn() {
+   ?>
+    <button id="gen-terms" class="button button-primary">
+        <?php _e('Generate terms') ?>
+    </button>
+
+    <script>
+        const genTermsBtn = document.querySelector('#gen-terms')
+        genTermsBtn.addEventListener('click', (e) => {
+            genTermsBtn.setAttribute('disabled', 'disabled')
+            fetch('/wp-admin/admin-ajax.php?action=generate_cuisine_location_terms', {
+                method: 'POST',
+            }).then(res => {
+                alert('Successfully generated.')
+            }).catch(err => {
+                alert(err)
+            }).finally(() => {
+                genTermsBtn.removeAttribute('disabled')
+            })
+        })
+    </script>
+   <?php
+}
+
+add_action('restaurant_cuisine_location_add_form', 'addGenerateCuisineLocationTermsBtn');
 
 /**
  * Add import page
@@ -204,14 +304,92 @@ add_action('admin_menu', 'addSettingsPage');
 function updateSettings() {
     $settings = $_POST['settings'] ?? [];
 
-    $result = update_option('import_settings', $settings);
+    update_option('import_settings', $settings);
 
-    wp_send_json(['status' => $result,]);
+    wp_send_json_success();
     wp_die();
 }
 
 add_action('wp_ajax_update_settings', 'updateSettings');
 
+/**
+ * Generate description
+ */
+function generateDescription(): string {
+    $settings = get_option('import_settings', []);
+    $templates = $settings['description_templates'] ?? [];
+    
+    if (! $templates) {
+        return '';
+    }
+
+    $template = $templates[rand(0, count($templates) - 1)];
+
+    $description = preg_replace_callback('(\[.*?\])', function ($matches) {
+        $words = explode('|', trim($matches[0], '[]'));
+        $word = $words[rand(0, count($words) - 1)];
+    
+        return $word;
+    }, $template);
+
+    return $description;
+}
+
+/**
+ * Generate terms descriptions
+ */
+function generateTermsDescriptions() {
+    $terms = get_terms( [
+        'taxonomy' => $_POST['tax'],
+        'hide_empty' => false,
+    ] );
+
+    var_dump($terms);
+
+    foreach ($terms as $term) {
+        wp_update_term($term->term_id, $term->taxonomy, [
+            'description' => generateDescription(),
+        ]);
+    }
+
+    wp_send_json_success();
+    wp_die();
+}
+
+add_action('wp_ajax_generate_terms_descs', 'generateTermsDescriptions');
+
+/**
+ * Add generate descriptions button
+ */
+function addGenerateDescriptionBtn() {
+    ?>
+    <button id="gen-descs" class="button button-primary">
+        <?php _e('Generate descriptions') ?>
+    </button>
+
+    <script>
+        const genDescsBtn = document.querySelector('#gen-descs')
+        genDescsBtn.addEventListener('click', (e) => {
+            genDescsBtn.setAttribute('disabled', 'disabled')
+            fetch('/wp-admin/admin-ajax.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'action=generate_terms_descs&tax=<?php echo $_GET['taxonomy'] ?>',
+            }).then(res => {
+                alert('Successfully generated.')
+            }).catch(err => {
+                alert(err)
+            }).finally(() => {
+                genDescsBtn.removeAttribute('disabled')
+            })
+        })
+    </script>
+   <?php
+}
+
+add_action('restaurant_cuisine_add_form', 'addGenerateDescriptionBtn');
+add_action('restaurant_location_add_form', 'addGenerateDescriptionBtn');
+add_action('restaurant_cuisine_location_add_form', 'addGenerateDescriptionBtn');
     
 /**
  * Import items

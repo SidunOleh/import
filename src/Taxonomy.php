@@ -18,6 +18,8 @@ class Taxonomy
 
     private $publiclyQueryable;
 
+    private $rewrite;
+
     public function __construct()
     {
         $this->name = '';
@@ -25,7 +27,8 @@ class Taxonomy
         $this->label = '';
         $this->labelPlular = '';
         $this->hierarchical = false;
-        $this->publiclyQueryable = true;        
+        $this->publiclyQueryable = true;
+        $this->rewrite = [];        
     }
 
     public function name(string $name): self
@@ -70,6 +73,13 @@ class Taxonomy
         return $this;
     }
 
+    public function rewrite(array $rewrite): self
+    {
+        $this->rewrite = $rewrite;
+
+        return $this;
+    }
+
     public function register(): void
     {
         add_action('init', function () {
@@ -92,6 +102,7 @@ class Taxonomy
                 ],
                 'hierarchical'          => $this->hierarchical,
                 'publicly_queryable'    => $this->publiclyQueryable,
+                'rewrite'               => $this->rewrite,
             ]);
         });
     }
