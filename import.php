@@ -396,7 +396,7 @@ add_action('restaurant_cuisine_location_add_form', 'addGenerateDescriptionBtn');
  */
 function importItems() {
     set_time_limit(0);
-    ini_set('memory_limit', -1);
+    wp_suspend_cache_addition(true);
 
     $urls = $_POST['urls'] ?? [];
     $config = $_POST['config'] ?? [];
