@@ -222,7 +222,7 @@ function generateCuisineLocationTerms() {
                 ],
             ]);
             array_map(function ($postId) use($term) {
-                wp_set_post_terms($postId, [$term['term_id']], 'restaurant_cuisine_location');
+                wp_set_post_terms($postId, [$term['term_id']], 'restaurant_cuisine_location', true);
             }, $posIds);
         }
     }
