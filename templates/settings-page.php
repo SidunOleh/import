@@ -32,7 +32,7 @@
 
     <p>
         <label for="description_templates">
-            <?php _e('Add description template') ?>
+            <?php _e('Add new description template') ?>
         </label>
         <?php echo wp_editor('', 'description-template', [
             'textarea_name' => 'description_template',
