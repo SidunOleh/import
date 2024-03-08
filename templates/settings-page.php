@@ -15,24 +15,25 @@
             id="twocaptcha_key">
     </p>
 
+    <p>
+        <?php _e('Description templates') ?>
+    </p>
+
     <?php
     $templates = $settings['description_templates'] ?? [];
     foreach ($templates as $i => $template):
     ?>
     <p>
-        <label for="description_templates">
-            <?php _e('Description template') ?>
-        </label>
         <?php echo wp_editor($template, "description-template-{$i}", [
             'textarea_name' => 'description_template',
-            'textarea_rows' => 5,
+            'textarea_rows' => 1,
         ]) ?>
     </p>
     <?php endforeach ?>
 
     <p>
         <label for="description_templates">
-            <?php _e('Add new description template') ?>
+            <?php _e('Add new template') ?>
         </label>
         <?php echo wp_editor('', 'description-template', [
             'textarea_name' => 'description_template',
