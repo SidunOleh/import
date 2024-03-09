@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Import
- * Description: Import data
+ * Description: Import restaurants
  * Author: Sidun Oleh
  */
 

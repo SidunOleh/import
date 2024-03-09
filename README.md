@@ -1,3 +1,3 @@
 # Import data
 
-- Import restaurants from https://ru.restaurantguru.com
+Import restaurants from https://ru.restaurantguru.com
