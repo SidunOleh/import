@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Import
- * Description: Import restaurants
+ * Description: Import restaurants from https://ru.restaurantguru.com
  * Author: Sidun Oleh
  */
 
