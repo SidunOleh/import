@@ -10,7 +10,6 @@ use Import\PostType;
 use Import\Taxonomy;
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
-use Import\Descriptions\CuisineGenerator;
 use Import\Descriptions\Generator;
 use Import\Importer\ImporterFactory;
 
