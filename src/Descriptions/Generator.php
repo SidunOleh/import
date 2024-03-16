@@ -84,9 +84,9 @@ abstract class Generator
     {
         $template = $this->chooseVariants($template);
 
-        $description = $this->replaceVars($template, $term);
+        $template = $this->replaceVars($template, $term);
 
-        return $description;
+        return $template;
     }
 
     protected function chooseVariants(string $template): string
