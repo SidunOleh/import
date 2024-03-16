@@ -382,7 +382,7 @@ add_action('restaurant_cuisine_location_add_form', 'addGenerateDescriptionBtn');
  * Import items
  */
 function importItems() {
-    set_time_limit(0);
+    set_time_limit(DAY_IN_SECONDS);
     ini_set('memory_limit', '1G');
     wp_suspend_cache_addition(true);
 
