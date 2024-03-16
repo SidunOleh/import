@@ -10,6 +10,8 @@ use Import\PostType;
 use Import\Taxonomy;
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
+use Import\Descriptions\CuisineGenerator;
+use Import\Descriptions\Generator;
 use Import\Importer\ImporterFactory;
 
 defined('ABSPATH') or die;
@@ -304,36 +306,18 @@ add_action('admin_menu', 'addSettingsPage');
 function updateSettings() {
     $settings = $_POST['settings'] ?? [];
 
+    $settings['templates'] = array_filter(
+        $settings['templates'] ?? [], 
+        fn ($template) => $template['text']
+    );
+
     update_option('import_settings', $settings);
 
-    wp_send_json_success();
-    wp_die();
+    wp_redirect(wp_get_referer());
+    die;
 }
 
 add_action('wp_ajax_update_settings', 'updateSettings');
-
-/**
- * Generate description
- */
-function generateDescription(): string {
-    $settings = get_option('import_settings', []);
-    $templates = $settings['description_templates'] ?? [];
-    
-    if (! $templates) {
-        return '';
-    }
-
-    $template = $templates[rand(0, count($templates) - 1)];
-
-    $description = preg_replace_callback('(\[.*?\])', function ($matches) {
-        $words = explode('|', trim($matches[0], '[]'));
-        $word = $words[rand(0, count($words) - 1)];
-    
-        return $word;
-    }, $template);
-
-    return $description;
-}
 
 /**
  * Generate terms descriptions
@@ -344,12 +328,16 @@ function generateTermsDescriptions() {
         'hide_empty' => false,
     ] );
 
-    var_dump($terms);
+    $generator = Generator::create($_POST['tax']);
 
     foreach ($terms as $term) {
-        wp_update_term($term->term_id, $term->taxonomy, [
-            'description' => generateDescription(),
-        ]);
+        $description = $generator->generate($term);
+
+        wp_update_term(
+            $term->term_id, 
+            $term->taxonomy, 
+            ['description' => $description,]
+        );
     }
 
     wp_send_json_success();
