@@ -179,6 +179,9 @@ add_action('carbon_fields_register_fields', 'commentsMetafields');
  * Generate Cuisine-Location terms
  */
 function generateCuisineLocationTerms() {
+    ini_set('memory_limit', '1G');
+    wp_suspend_cache_addition(true);
+
     $cuisines = get_terms( [
         'taxonomy' => 'restaurant_cuisine',
         'hide_empty' => false,
