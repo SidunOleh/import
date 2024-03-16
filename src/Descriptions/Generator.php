@@ -82,16 +82,30 @@ abstract class Generator
 
     protected function handleTemplate(string $template, WP_Term $term): string
     {
-        $description = preg_replace_callback('(\[.*?\])', function ($matches) {
+        $template = $this->chooseVariants($template);
+
+        $description = $this->replaceVars($template, $term);
+
+        return $description;
+    }
+
+    protected function chooseVariants(string $template): string
+    {
+        $template = preg_replace_callback('(\[.*?\])', function ($matches) {
             $words = explode('|', trim($matches[0], '[]'));
             $word = $words[rand(0, count($words) - 1)];
         
             return $word;
         }, $template);
 
-        $description = preg_replace('/{name}/', $term->name, $description);
+        return $template;
+    }
 
-        return $description;
+    protected function replaceVars(string $template, WP_Term $term): string
+    {
+        $template = preg_replace('/{name}/', $term->name, $template);
+
+        return $template;
     }
 
     abstract protected function rules(WP_Term $term): array;

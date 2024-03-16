@@ -32,27 +32,21 @@ class CuisineLocationGenerator extends Generator
         ];
     }
 
-    protected function handleTemplate(string $template, WP_Term $term): string
+    protected function replaceVars(string $template, WP_Term $term): string
     {
-        $description = preg_replace_callback('(\[.*?\])', function ($matches) {
-            $words = explode('|', trim($matches[0], '[]'));
-            $word = $words[rand(0, count($words) - 1)];
-        
-            return $word;
-        }, $template);
-
         $name = explode('-', $term->name);
-        $description = preg_replace(
+        
+        $template = preg_replace(
             '/{cuisine-name}/', 
             $name[0], 
-            $description
+            $template
         );
-        $description = preg_replace(
+        $template = preg_replace(
             '/{location-name}/',
             $name[1], 
-            $description
+            $template
         );
 
-        return $description;
+        return $template;
     }
 }
