@@ -325,6 +325,9 @@ add_action('wp_ajax_update_settings', 'updateSettings');
  * Generate terms descriptions
  */
 function generateTermsDescriptions() {
+    ini_set('memory_limit', '1G');
+    wp_suspend_cache_addition(true);
+    
     $terms = get_terms( [
         'taxonomy' => $_POST['tax'],
         'hide_empty' => false,
