@@ -179,6 +179,7 @@ add_action('carbon_fields_register_fields', 'commentsMetafields');
  * Generate Cuisine-Location terms
  */
 function generateCuisineLocationTerms() {
+    set_time_limit(DAY_IN_SECONDS);
     ini_set('memory_limit', '1G');
     wp_suspend_cache_addition(true);
 
@@ -325,9 +326,10 @@ add_action('wp_ajax_update_settings', 'updateSettings');
  * Generate terms descriptions
  */
 function generateTermsDescriptions() {
+    set_time_limit(DAY_IN_SECONDS);
     ini_set('memory_limit', '1G');
     wp_suspend_cache_addition(true);
-    
+
     $terms = get_terms( [
         'taxonomy' => $_POST['tax'],
         'hide_empty' => false,
