@@ -1,6 +1,6 @@
 <p>
     <?php _e('Description template') ?>
-    
+
     <br>
     <br>
 
@@ -44,5 +44,4 @@
         'textarea_name' => "settings[templates][{$i}][text]",
         'textarea_rows' => 10,
     ]) ?>
-
 </p>
