@@ -227,7 +227,12 @@ function generateCuisineLocationTerms() {
                 ],
             ]);
             array_map(function ($postId) use($term) {
-                wp_set_post_terms($postId, [$term['term_id']], 'restaurant_cuisine_location', true);
+                wp_set_post_terms(
+                    $postId, 
+                    [$term['term_id']], 
+                    'restaurant_cuisine_location', 
+                    true
+                );
             }, $posIds);
         }
     }
@@ -248,9 +253,9 @@ function addGenerateCuisineLocationTermsBtn() {
     </button>
 
     <script>
-        const genTermsBtn = document.querySelector('#gen-terms')
-        genTermsBtn.addEventListener('click', (e) => {
-            genTermsBtn.setAttribute('disabled', 'disabled')
+        const termsBtn = document.querySelector('#gen-terms')
+        termsBtn.addEventListener('click', (e) => {
+            termsBtn.setAttribute('disabled', 'disabled')
             fetch('/wp-admin/admin-ajax.php?action=generate_cuisine_location_terms', {
                 method: 'POST',
             }).then(res => {
@@ -258,7 +263,7 @@ function addGenerateCuisineLocationTermsBtn() {
             }).catch(err => {
                 alert(err)
             }).finally(() => {
-                genTermsBtn.removeAttribute('disabled')
+                termsBtn.removeAttribute('disabled')
             })
         })
     </script>
@@ -363,9 +368,9 @@ function addGenerateDescriptionBtn() {
     </button>
 
     <script>
-        const genDescsBtn = document.querySelector('#gen-descs')
-        genDescsBtn.addEventListener('click', (e) => {
-            genDescsBtn.setAttribute('disabled', 'disabled')
+        const descBtn = document.querySelector('#gen-descs')
+        descBtn.addEventListener('click', (e) => {
+            descBtn.setAttribute('disabled', 'disabled')
             fetch('/wp-admin/admin-ajax.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -375,7 +380,7 @@ function addGenerateDescriptionBtn() {
             }).catch(err => {
                 alert(err)
             }).finally(() => {
-                genDescsBtn.removeAttribute('disabled')
+                descBtn.removeAttribute('disabled')
             })
         })
     </script>
