@@ -28,7 +28,7 @@ require_once IMPORT_ROOT . '/vendor/autoload.php';
 /**
  * Include template
  */
-function include_template(string $name, array $data) {
+function include_template(string $name, array $data): void {
     extract($data);
 
     include IMPORT_ROOT . '/templates/' . $name;
