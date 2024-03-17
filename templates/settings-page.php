@@ -33,86 +33,20 @@ $locations = get_terms( [
         $templates = $settings['templates'] ?? [];
         foreach ($templates as $i => $template): 
         ?>
-        <p>
-            <?php _e('Description template') ?>
-            <br>
-            <br>
-            <select name="settings[templates][<?php echo $i ?>][rule][cuisine]">
-                <option selected disabled>
-                    <?php _e('Select cuisine') ?>
-                </option>
-                <option 
-                    value="*"
-                    <?php echo '*' == ($template['rule']['cuisine'] ?? '') ? 'selected' : '' ?>>
-                    <?php _e('All') ?>
-                </option>
-                <?php foreach ($cuisines as $cuisine): ?>
-                <option 
-                    value="<?php echo $cuisine->slug ?>" 
-                    <?php echo urldecode($cuisine->slug) == urldecode($template['rule']['cuisine'] ?? '') ? 'selected' : '' ?>>
-                    <?php echo $cuisine->name ?>
-                </option>
-                <?php endforeach ?>
-            </select>
-            <select name="settings[templates][<?php echo $i ?>][rule][location]">
-                <option selected disabled>
-                    <?php _e('Select location') ?>
-                </option>
-                <option 
-                    value="*"
-                    <?php echo '*' == ($template['rule']['location'] ?? '') ? 'selected' : '' ?>>
-                    <?php _e('All') ?>
-                </option>
-                <?php foreach ($locations as $location): ?>
-                <option 
-                    value="<?php echo $location->slug ?>"
-                    <?php echo urldecode($location->slug) == urldecode($template['rule']['location'] ?? '') ? 'selected' : '' ?>>
-                    <?php echo $location->name ?>
-                </option>
-                <?php endforeach ?>
-            </select>
-            <?php echo wp_editor($template['text'], 'template', [
-                'textarea_name' => "settings[templates][{$i}][text]",
-                'textarea_rows' => 10,
-            ]) ?>
-        </p>
+        <?php include_template('desc-template.php', [
+            'i' => $i,
+            'template' => $template,
+            'cuisines' => $cuisines,
+            'locations' => $locations,
+        ]) ?>
         <?php endforeach ?>
 
-        <p>
-            <?php _e('Description template') ?>
-            <br>
-            <br>
-            <select name="settings[templates][<?php echo count($templates) ?>][rule][cuisine]">
-                    <option selected disabled>
-                        <?php _e('Select cuisine') ?>
-                    </option>
-                    <option value="*">
-                        <?php _e('All') ?>
-                    </option>
-                <?php foreach ($cuisines as $cuisine): ?>
-                    <option value="<?php echo $cuisine->slug ?>">
-                        <?php echo $cuisine->name ?>
-                    </option>
-                <?php endforeach ?>
-            </select>
-            <select name="settings[templates][<?php echo count($templates) ?>][rule][location]">
-                    <option selected disabled>
-                        <?php _e('Select location') ?>
-                    </option>
-                    <option value="*">
-                        <?php _e('All') ?>
-                    </option>
-                <?php foreach ($locations as $location): ?>
-                    <option value="<?php echo $location->slug ?>">
-                        <?php echo $location->name ?>
-                    </option>
-                <?php endforeach ?>
-            </select>
-            <?php echo wp_editor('', 'template', [
-                'textarea_name' => 'settings[templates][' . count($templates) . '][text]',
-                'textarea_rows' => 10,
-            ]) ?>
-        </p>
+        <?php include_template('desc-template.php', [
+            'i' => count($templates),
+            'template' => [],
+            'cuisines' => $cuisines,
+            'locations' => $locations,
+        ]) ?>
 
         <p>
             <input 

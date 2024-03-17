@@ -26,6 +26,15 @@ const IMPORT_ROOT = __DIR__;
 require_once IMPORT_ROOT . '/vendor/autoload.php';
 
 /**
+ * Include template
+ */
+function include_template(string $name, array $data) {
+    extract($data);
+
+    include IMPORT_ROOT . '/templates/' . $name;
+}
+
+/**
  * Restaurant post type
  */
 (new PostType)
