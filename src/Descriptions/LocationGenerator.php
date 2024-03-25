@@ -19,4 +19,15 @@ class LocationGenerator extends Generator
             ],
         ];
     }
+
+    protected function replaceVars(string $template, WP_Term $term): string
+    {        
+        $template = preg_replace(
+            '/{location}/',
+            $term->name, 
+            $template
+        );
+
+        return $template;
+    }
 }

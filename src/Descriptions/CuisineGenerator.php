@@ -19,4 +19,15 @@ class CuisineGenerator extends Generator
             ], 
         ];
     }
+
+    protected function replaceVars(string $template, WP_Term $term): string
+    {        
+        $template = preg_replace(
+            '/{cuisine}/',
+            $term->name, 
+            $template
+        );
+
+        return $template;
+    }
 }

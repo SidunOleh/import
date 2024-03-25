@@ -103,16 +103,7 @@ abstract class Generator
 
     protected function replaceVars(string $template, WP_Term $term): string
     {
-        $template = preg_replace(
-            '/{cuisine}/', 
-            $term->name, 
-            $template
-        );
-        $template = preg_replace(
-            '/{location}/', 
-            $term->name, 
-            $template
-        );
+        $template = preg_replace('/{name}/', $term->name, $template);
 
         return $template;
     }
