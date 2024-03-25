@@ -37,12 +37,12 @@ class CuisineLocationGenerator extends Generator
         $name = explode('-', $term->name);
         
         $template = preg_replace(
-            '/{cuisine-name}/', 
+            '/{cuisine}/', 
             $name[0], 
             $template
         );
         $template = preg_replace(
-            '/{location-name}/',
+            '/{location}/',
             $name[1], 
             $template
         );
